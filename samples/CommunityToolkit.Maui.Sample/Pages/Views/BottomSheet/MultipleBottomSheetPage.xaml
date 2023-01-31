@@ -1,0 +1,18 @@
+<pages:BasePage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:pages="clr-namespace:CommunityToolkit.Maui.Sample.Pages"
+                xmlns:viewModels="clr-namespace:CommunityToolkit.Maui.Sample.ViewModels.Views"
+                x:Class="CommunityToolkit.Maui.Sample.Pages.Views.MultipleBottomSheetPage"
+                Title="MultipleBottomSheetPage"
+                x:TypeArguments="viewModels:MultipleBottomSheetViewModel"
+                x:DataType="viewModels:MultipleBottomSheetViewModel">
+
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Spacing="12">
+                <Button Text="Toggle Size BottomSheet" Clicked="HandleToggleSizeBottomSheetButtonClicked" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+
+</pages:BasePage>

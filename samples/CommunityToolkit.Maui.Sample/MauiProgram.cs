@@ -60,6 +60,7 @@ public static class MauiProgram
 						.AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(3, SleepDurationProvider));
 
 		builder.Services.AddSingleton<PopupSizeConstants>();
+		builder.Services.AddSingleton<BottomSheetSizeConstants>();
 
 		RegisterViewsAndViewModels(builder.Services);
 		RegisterEssentials(builder.Services);
@@ -193,11 +194,15 @@ public static class MauiProgram
 		services.AddTransientWithShellRoute<SemanticOrderViewPage, SemanticOrderViewPageViewModel>();
 		services.AddTransientWithShellRoute<ShowPopupInOnAppearingPage, ShowPopupInOnAppearingPageViewModel>();
 		services.AddTransientWithShellRoute<StylePopupPage, StylePopupViewModel>();
+		services.AddTransientWithShellRoute<MultipleBottomSheetPage, MultipleBottomSheetViewModel>();
 
 		// Add Popups
 		services.AddTransientPopup<CsharpBindingPopup, CsharpBindingPopupViewModel>();
 		services.AddTransientPopup<UpdatingPopup, UpdatingPopupViewModel>();
 		services.AddTransientPopup<XamlBindingPopup, XamlBindingPopupViewModel>();
+
+		// Add BottomSheets
+		services.AddTransient<CsharpBindingBottomSheetViewModel>();
 	}
 
 	static void RegisterEssentials(in IServiceCollection services)
