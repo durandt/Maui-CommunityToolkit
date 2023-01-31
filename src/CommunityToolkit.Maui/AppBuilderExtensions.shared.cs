@@ -27,9 +27,11 @@ public static class AppBuilderExtensions
 		{
 			h.AddHandler<DrawingView, DrawingViewHandler>();
 			h.AddHandler<Popup, PopupHandler>();
+			h.AddHandler<BottomSheet, BottomSheetHandler>();
 		});
 
 		Popup.RemapForControls();
+		BottomSheet.RemapForControls();
 
 		return builder;
 	}
