@@ -11,7 +11,16 @@ public partial class BottomSheetHandler
 	public static IPropertyMapper<IBottomSheet, BottomSheetHandler> BottomSheetMapper = new PropertyMapper<IBottomSheet, BottomSheetHandler>(ElementMapper)
 	{
 		[nameof(IBottomSheet.Anchor)] = MapAnchor,
-		[nameof(IBottomSheet.Color)] = MapColor,
+		[nameof(IBottomSheet.BackgroundColor)] = MapBackgroundColor,
+		// TODO map properties
+		//[nameof(IBottomSheet.CornerRadius)] = MapCornerRadius,
+		//[nameof(IBottomSheet.HandleColor)] = MapHandleColor,
+		//[nameof(IBottomSheet.HandleHeight)] = MapHandleHeight,
+		//[nameof(IBottomSheet.HandleWidth)] = MapHandleWidth,
+		//[nameof(IBottomSheet.HandleSpacingToBottomSheet)] = MapHandleSpacingToBottomSheet,
+		//[nameof(IBottomSheet.HandleSwipeAreaHeight)] = MapHandleSwipeAreaHeight,
+		//[nameof(IBottomSheet.AnimationDurationMillis)] = MapAnimationDurationMillis,
+		[nameof(IBottomSheet.BottomSheetSize)] = MapBottomSheetSize,
 		[nameof(IBottomSheet.Size)] = MapSize,
 		[nameof(IBottomSheet.VerticalOptions)] = MapSize,
 		[nameof(IBottomSheet.HorizontalOptions)] = MapSize,

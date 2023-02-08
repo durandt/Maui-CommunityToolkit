@@ -72,13 +72,23 @@ public partial class BottomSheetHandler : ElementHandler<IBottomSheet, MauiBotto
 	}
 
 	/// <summary>
-	/// Action that's triggered when the BottomSheet <see cref="IBottomSheet.Color"/> property changes.
+	/// Action that's triggered when the BottomSheet <see cref="IBottomSheet.BackgroundColor"/> property changes.
 	/// </summary>
 	/// <param name="handler">An instance of <see cref="BottomSheetHandler"/>.</param>
 	/// <param name="view">An instance of <see cref="IBottomSheet"/>.</param>
-	public static void MapColor(BottomSheetHandler handler, IBottomSheet view)
+	public static void MapBackgroundColor(BottomSheetHandler handler, IBottomSheet view)
 	{
 		handler.PlatformView.SetColor(view);
+	}
+
+	/// <summary>
+	/// Action that's triggered when the BottomSheet <see cref="IBottomSheet.BottomSheetSize"/> property changes.
+	/// </summary>
+	/// <param name="handler">An instance of <see cref="BottomSheetHandler"/>.</param>
+	/// <param name="view">An instance of <see cref="IBottomSheet"/>.</param>
+	public static void MapBottomSheetSize(BottomSheetHandler handler, IBottomSheet view)
+	{
+		handler.PlatformView.SetBottomSheetSize(view);
 	}
 
 	/// <summary>

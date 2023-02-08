@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Core.Models;
 using Microsoft.Maui.Controls.Internals;
 using LayoutAlignment = Microsoft.Maui.Primitives.LayoutAlignment;
 
@@ -16,14 +17,54 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	public static readonly BindableProperty ContentProperty = BindableProperty.Create(nameof(Content), typeof(View), typeof(BottomSheet), propertyChanged: OnContentChanged);
 
 	/// <summary>
-	///  Backing BindableProperty for the <see cref="Color"/> property.
+	///  Backing BindableProperty for the <see cref="BackgroundColor"/> property.
 	/// </summary>
-	public static readonly BindableProperty ColorProperty = BindableProperty.Create(nameof(Color), typeof(Color), typeof(BottomSheet), Colors.LightGray, propertyChanged: OnColorChanged);
+	public static readonly BindableProperty BackgroundColorProperty = BindableProperty.Create(nameof(BackgroundColor), typeof(Color), typeof(BottomSheet), Colors.LightGray, propertyChanged: OnBackgroundColorChanged);
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="CornerRadius"/> property.
+	/// </summary>
+	public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(nameof(CornerRadius), typeof(double?), typeof(BottomSheet), 28.0, propertyChanged: OnCornerRadiusChanged);
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="HandleColor"/> property.
+	/// </summary>
+	public static readonly BindableProperty HandleColorProperty = BindableProperty.Create(nameof(HandleColor), typeof(Color), typeof(BottomSheet), Colors.LightGray, propertyChanged: OnHandleColorChanged);
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="HandleHeight"/> property.
+	/// </summary>
+	public static readonly BindableProperty HandleHeightProperty = BindableProperty.Create(nameof(HandleHeight), typeof(double?), typeof(BottomSheet), 4.0, propertyChanged: OnHandleHeightChanged);
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="HandleWidth"/> property.
+	/// </summary>
+	public static readonly BindableProperty HandleWidthProperty = BindableProperty.Create(nameof(HandleWidth), typeof(double?), typeof(BottomSheet), 32.0, propertyChanged: OnHandleWidthChanged);
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="HandleSpacingToBottomSheet"/> property.
+	/// </summary>
+	public static readonly BindableProperty HandleSpacingToBottomSheetProperty = BindableProperty.Create(nameof(HandleSpacingToBottomSheet), typeof(double?), typeof(BottomSheet), 8.0, propertyChanged: OnHandleSpacingToBottomSheetChanged);
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="HandleSwipeAreaHeight"/> property.
+	/// </summary>
+	public static readonly BindableProperty HandleSwipeAreaHeightProperty = BindableProperty.Create(nameof(HandleSwipeAreaHeight), typeof(double?), typeof(BottomSheet), 32.0, propertyChanged: OnHandleSwipeAreaHeightChanged);
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="AnimationDurationMillis"/> property.
+	/// </summary>
+	public static readonly BindableProperty AnimationDurationMillisProperty = BindableProperty.Create(nameof(AnimationDurationMillis), typeof(int?), typeof(BottomSheet), 300, propertyChanged: OnAnimationDurationMillisChanged);
 
 	/// <summary>
 	///  Backing BindableProperty for the <see cref="Size"/> property.
 	/// </summary>
 	public static readonly BindableProperty SizeProperty = BindableProperty.Create(nameof(Size), typeof(Size), typeof(BottomSheet), default(Size));
+
+	/// <summary>
+	///  Backing BindableProperty for the <see cref="BottomSheetSize"/> property.
+	/// </summary>
+	public static readonly BindableProperty BottomSheetSizeProperty = BindableProperty.Create(nameof(BottomSheetSize), typeof(BottomSheetSize), typeof(BottomSheet), default(BottomSheetSize));
 
 	/// <summary>
 	///  Backing BindableProperty for the <see cref="CanBeDismissedByTappingOutsideOfBottomSheet"/> property.
@@ -50,8 +91,9 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	/// <summary>
 	/// Instantiates a new instance of <see cref="BottomSheet"/>.
 	/// </summary>
-	public BottomSheet()
+	public BottomSheet(IDeviceDisplay deviceDisplay)
 	{
+		DeviceDisplay = deviceDisplay;
 		platformConfigurationRegistry = new Lazy<PlatformConfigurationRegistry<BottomSheet>>(() => new(this));
 
 		VerticalOptions = HorizontalOptions = LayoutAlignment.Center;
@@ -96,16 +138,104 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	}
 
 	/// <summary>
-	/// Gets or sets the <see cref="Color"/> of the BottomSheet.
+	/// Gets or sets the <see cref="BackgroundColor"/> of the BottomSheet.
 	/// </summary>
 	/// <remarks>
 	/// This color sets the native background color of the <see cref="BottomSheet"/>, which is
 	/// independent of any background color configured in the actual View.
 	/// </remarks>
-	public Color Color
+	public Color BackgroundColor
 	{
-		get => (Color)GetValue(ColorProperty);
-		set => SetValue(ColorProperty, value);
+		get => (Color)GetValue(BackgroundColorProperty);
+		set => SetValue(BackgroundColorProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="CornerRadius"/> of the BottomSheet.
+	/// </summary>
+	/// <remarks>
+	/// Gets or sets the <see cref="BottomSheet"/>'s corner radius.
+	/// </remarks>
+	public double? CornerRadius
+	{
+		get => (double?)GetValue(CornerRadiusProperty);
+		set => SetValue(CornerRadiusProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="HandleColor"/> of the BottomSheet.
+	/// </summary>
+	/// <remarks>
+	/// This color sets the native background color of handle above the
+	/// <see cref="BottomSheet"/>.
+	/// </remarks>
+	public Color HandleColor
+	{
+		get => (Color)GetValue(HandleColorProperty);
+		set => SetValue(HandleColorProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="HandleHeight"/> of the BottomSheet's handle.
+	/// </summary>
+	/// <remarks>
+	/// Gets or sets the <see cref="BottomSheet"/> handle's height.
+	/// </remarks>
+	public double? HandleHeight
+	{
+		get => (double?)GetValue(HandleHeightProperty);
+		set => SetValue(HandleHeightProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="HandleWidth"/> of the BottomSheet's handle.
+	/// </summary>
+	/// <remarks>
+	/// Gets or sets the <see cref="BottomSheet"/> handle's width.
+	/// </remarks>
+	public double? HandleWidth
+	{
+		get => (double?)GetValue(HandleWidthProperty);
+		set => SetValue(HandleWidthProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="HandleSpacingToBottomSheet"/>, the spacing between
+	/// the BottomSheet and its handle.
+	/// </summary>
+	/// <remarks>
+	/// Gets or sets the spacing between the <see cref="BottomSheet"/> and its handle.
+	/// </remarks>
+	public double? HandleSpacingToBottomSheet
+	{
+		get => (double?)GetValue(HandleSpacingToBottomSheetProperty);
+		set => SetValue(HandleSpacingToBottomSheetProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="HandleSwipeAreaHeight"/> of the swipeable area
+	/// around the BottomSheet's handle.
+	/// </summary>
+	/// <remarks>
+	/// Gets or sets the height of the area that allows swiping around the
+	/// <see cref="BottomSheet"/>'s handle's.
+	/// </remarks>
+	public double? HandleSwipeAreaHeight
+	{
+		get => (double?)GetValue(HandleSwipeAreaHeightProperty);
+		set => SetValue(HandleSwipeAreaHeightProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="AnimationDurationMillis"/> of the BottomSheet.
+	/// </summary>
+	/// <remarks>
+	/// Gets or sets the <see cref="BottomSheet"/> animations durations.
+	/// </remarks>
+	public int? AnimationDurationMillis
+	{
+		get => (int?)GetValue(AnimationDurationMillisProperty);
+		set => SetValue(AnimationDurationMillisProperty, value);
 	}
 
 	/// <summary>
@@ -124,6 +254,28 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	{
 		get => (LayoutAlignment)GetValue(HorizontalOptionsProperty);
 		set => SetValue(HorizontalOptionsProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="BottomSheetSize"/> of the BottomSheet Display.
+	/// </summary>
+	/// <remarks>
+	/// The BottomSheet will always try to constrain the actual size of the <see cref="BottomSheet" />
+	/// to the <see cref="BottomSheet" /> of the View unless a <see cref="BottomSheetSize"/> is specified.
+	/// If the <see cref="BottomSheet" /> contains <see cref="LayoutOptions"/> a <see cref="BottomSheetSize"/>
+	/// will be required. This will allow the View to have a concept of <see cref="BottomSheetSize"/>
+	/// that varies from the actual <see cref="BottomSheetSize"/> of the <see cref="BottomSheet" />
+	/// </remarks>
+	public BottomSheetSize BottomSheetSize
+	{
+		get => (BottomSheetSize)GetValue(BottomSheetSizeProperty);
+		set {
+			SetValue(BottomSheetSizeProperty, value);
+			if (value != null)
+			{
+				Size = value.ContentSize;
+			}
+		}
 	}
 
 	/// <summary>
@@ -154,6 +306,11 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 		get => (bool)GetValue(CanBeDismissedByTappingOutsideOfBottomSheetProperty);
 		set => SetValue(CanBeDismissedByTappingOutsideOfBottomSheetProperty, value);
 	}
+
+	/// <summary>
+	/// Gets the instance of the <see cref="IDeviceDisplay"/>.
+	/// </summary>
+	public IDeviceDisplay DeviceDisplay { get; }
 
 	/// <summary>
 	/// Gets or sets the <see cref="View"/> anchor.
@@ -260,7 +417,42 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 		bottomSheet.OnBindingContextChanged();
 	}
 
-	static void OnColorChanged(BindableObject bindable, object oldValue, object newValue)
+	static void OnBackgroundColorChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		ArgumentNullException.ThrowIfNull(newValue);
+	}
+
+	static void OnCornerRadiusChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		ArgumentNullException.ThrowIfNull(newValue);
+	}
+
+	static void OnHandleColorChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		ArgumentNullException.ThrowIfNull(newValue);
+	}
+
+	static void OnHandleHeightChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		ArgumentNullException.ThrowIfNull(newValue);
+	}
+
+	static void OnHandleWidthChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		ArgumentNullException.ThrowIfNull(newValue);
+	}
+
+	static void OnHandleSpacingToBottomSheetChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		ArgumentNullException.ThrowIfNull(newValue);
+	}
+
+	static void OnHandleSwipeAreaHeightChanged(BindableObject bindable, object oldValue, object newValue)
+	{
+		ArgumentNullException.ThrowIfNull(newValue);
+	}
+
+	static void OnAnimationDurationMillisChanged(BindableObject bindable, object oldValue, object newValue)
 	{
 		ArgumentNullException.ThrowIfNull(newValue);
 	}

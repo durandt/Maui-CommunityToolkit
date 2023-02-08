@@ -1,4 +1,5 @@
-﻿using IElement = Microsoft.Maui.IElement;
+﻿using CommunityToolkit.Maui.Core.Models;
+using IElement = Microsoft.Maui.IElement;
 using LayoutAlignment = Microsoft.Maui.Primitives.LayoutAlignment;
 
 namespace CommunityToolkit.Maui.Core;
@@ -9,6 +10,11 @@ namespace CommunityToolkit.Maui.Core;
 public interface IBottomSheet : IElement, IVisualTreeElement
 {
 	/// <summary>
+	/// Gets the instance of the <see cref="IDeviceDisplay"/>.
+	/// </summary>
+	IDeviceDisplay? DeviceDisplay { get; }
+
+	/// <summary>
 	/// Gets the View that BottomSheet will be anchored.
 	/// </summary>
 	IView? Anchor { get; }
@@ -16,7 +22,42 @@ public interface IBottomSheet : IElement, IVisualTreeElement
 	/// <summary>
 	/// Gets the BottomSheet's color.
 	/// </summary>
-	Color? Color { get; }
+	Color? BackgroundColor { get; }
+
+	/// <summary>
+	/// Gets the BottomSheet's corner radius.
+	/// </summary>
+	double? CornerRadius { get; }
+
+	/// <summary>
+	/// Gets the BottomSheet's handle color.
+	/// </summary>
+	Color? HandleColor { get; }
+
+	/// <summary>
+	/// Gets the BottomSheet's handle height.
+	/// </summary>
+	double? HandleHeight { get; }
+
+	/// <summary>
+	/// Gets the BottomSheet's handle width.
+	/// </summary>
+	double? HandleWidth { get; }
+
+	/// <summary>
+	/// Gets the spacing between the BottomSheet and its handle.
+	/// </summary>
+	double? HandleSpacingToBottomSheet { get; }
+
+	/// <summary>
+	/// Gets the BottomSheet's handle swipe area height.
+	/// </summary>
+	double? HandleSwipeAreaHeight { get; }
+
+	/// <summary>
+	/// Gets the BottomSheet's animations duration (milliseconds).
+	/// </summary>
+	int? AnimationDurationMillis { get; }
 
 	/// <summary>
 	/// Gets the BottomSheet's Content.
@@ -32,6 +73,11 @@ public interface IBottomSheet : IElement, IVisualTreeElement
 	/// Gets the CanBeDismissedByTappingOutsideOfBottomSheet property.
 	/// </summary>
 	bool CanBeDismissedByTappingOutsideOfBottomSheet { get; }
+
+	/// <summary>
+	/// Gets the BottomSheet's <see cref="BottomSheetSize"/>.
+	/// </summary>
+	BottomSheetSize BottomSheetSize { get; set; }
 
 	/// <summary>
 	/// Gets the BottomSheet's size.
