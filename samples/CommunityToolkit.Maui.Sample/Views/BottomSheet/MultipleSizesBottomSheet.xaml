@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <mct:BottomSheet
-	x:Class="CommunityToolkit.Maui.Sample.ToggleSizeBottomSheet"
+	x:Class="CommunityToolkit.Maui.Sample.MultipleSizesBottomSheet"
 	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
 	xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
 
-	<VerticalStackLayout Style="{StaticResource BottomSheetLayout}">
+	<VerticalStackLayout Style="{StaticResource BottomSheetLayout}" Spacing="4">
 
 		<VerticalStackLayout.Resources>
 			<ResourceDictionary>
@@ -34,12 +34,34 @@
 			</ResourceDictionary>
 		</VerticalStackLayout.Resources>
 
-		<Label Style="{StaticResource Title}" Text="Button BottomSheet" />
+		<Label Style="{StaticResource Title}" Text="BottomSheet Title" />
 		<BoxView Style="{StaticResource Divider}" />
-		<Label Style="{StaticResource Content}" Text="This is a platform specific bottom sheet with a .NET MAUI View being rendered. The behaviors of the bottom sheet will confirm to 100% this platform look and feel, but still allows you to use your .NET MAUI controls." />
-		<Button
-			Clicked="Button_Clicked"
-			Style="{StaticResource ConfirmButton}"
-			Text="Toggle Size" />
+		<Label Style="{StaticResource Content}" Text="This is a platform specific bottom sheet with a .NET MAUI View being rendered." />
+		<Grid RowSpacing="4" ColumnSpacing="4">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="auto" />
+				<RowDefinition Height="auto" />
+			</Grid.RowDefinitions>
+			<Button Grid.Row="0" Grid.Column="0"
+					Clicked="NextSizeButton_Clicked"
+					Style="{StaticResource ConfirmButton}"
+					Text="Increase size" />
+			<Button Grid.Row="0" Grid.Column="1"
+					Clicked="PreviousSizeButton_Clicked"
+					Style="{StaticResource ConfirmButton}"
+					Text="Decrease size" />
+			<Button Grid.Row="1" Grid.Column="0"
+					Clicked="CloseButton_Clicked"
+					Style="{StaticResource ConfirmButton}"
+					Text="Close" />
+			<Button Grid.Row="1" Grid.Column="1"
+					Clicked="ToggleCanBeDismissedByTappingOutsideOfBottomSheetButton_Clicked"
+					Style="{StaticResource ConfirmButton}"
+					Text="Toggle CanBeDismissed" />
+		</Grid>
 	</VerticalStackLayout>
 </mct:BottomSheet>

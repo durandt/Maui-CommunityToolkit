@@ -10,6 +10,23 @@ namespace CommunityToolkit.Maui.Core.Views;
 public static class BottomSheetExtensions
 {
 	/// <summary>
+	/// Method to update the <see cref="IBottomSheet.BottomSheetSize"/> of the BottomSheet.
+	/// </summary>
+	/// <param name="mauiBottomSheet">An instance of <see cref="MauiBottomSheet"/>.</param>
+	/// <param name="bottomSheet">An instance of <see cref="IBottomSheet"/>.</param>
+	public static void SetBottomSheetSize(this MauiBottomSheet mauiBottomSheet, in IBottomSheet bottomSheet)
+	{
+		if (!bottomSheet.BottomSheetSize.ContentSize.IsZero)
+		{
+			mauiBottomSheet.SetBottomSheetSize(bottomSheet.BottomSheetSize);
+		}
+		else if (bottomSheet.Content is not null)
+		{
+			mauiBottomSheet.Close();
+		}
+	}
+
+	/// <summary>
 	/// Method to update the <see cref="IBottomSheet.Size"/> of the BottomSheet.
 	/// </summary>
 	/// <param name="mauiBottomSheet">An instance of <see cref="MauiBottomSheet"/>.</param>
@@ -36,29 +53,24 @@ public static class BottomSheetExtensions
 	}
 
 	/// <summary>
-	/// Method to update the <see cref="IBottomSheet.Color"/> of the BottomSheet.
+	/// Method to update the <see cref="IBottomSheet.BackgroundColor"/> of the BottomSheet.
 	/// </summary>
 	/// <param name="mauiBottomSheet">An instance of <see cref="MauiBottomSheet"/>.</param>
 	/// <param name="bottomSheet">An instance of <see cref="IBottomSheet"/>.</param>
 	public static void SetBackgroundColor(this MauiBottomSheet mauiBottomSheet, in IBottomSheet bottomSheet)
 	{
-		if (mauiBottomSheet.PopoverPresentationController is not null && bottomSheet.Color == Colors.Transparent)
+		if (mauiBottomSheet.PopoverPresentationController is not null && bottomSheet.BackgroundColor == Colors.Transparent)
 		{
 			mauiBottomSheet.PopoverPresentationController.PopoverBackgroundViewType = typeof(TransparentPopoverBackgroundView);
 		}
 
-		if (mauiBottomSheet.Control is null)
+		if (mauiBottomSheet.PopoverViewController is null)
 		{
 			return;
 		}
 
-		var color = bottomSheet.Color?.ToPlatform();
-		mauiBottomSheet.Control.PlatformView.BackgroundColor = color;
-
-		if (mauiBottomSheet.Control.ViewController?.View is UIView view)
-		{
-			view.BackgroundColor = color;
-		}
+		var color = bottomSheet.BackgroundColor?.ToPlatform();
+		mauiBottomSheet.PopoverViewController.BackgroundColor = color;
 	}
 
 	/// <summary>

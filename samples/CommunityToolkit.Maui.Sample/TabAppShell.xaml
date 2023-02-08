@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<Shell x:Class="CommunityToolkit.Maui.Sample.TabAppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:CommunityToolkit.Maui.Sample.Pages.Views"
+       Shell.FlyoutBehavior="Disabled"
+       Shell.NavBarHasShadow="false">
+    <TabBar>
+        <Tab Title="BottomSheet">
+            <ShellContent ContentTemplate="{DataTemplate views:MultipleBottomSheetPage}" />
+        </Tab>
+        <Tab Title="Popup">
+            <ShellContent ContentTemplate="{DataTemplate views:MultiplePopupPage}" />
+        </Tab>
+    </TabBar>
+</Shell>
