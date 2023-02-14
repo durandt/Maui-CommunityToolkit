@@ -84,6 +84,16 @@ public static class BottomSheetExtensions
 	}
 
 	/// <summary>
+	/// Method to update the <see cref="IBottomSheet.AllowUserInteractionToSwitchBottomSheetSize"/> property.
+	/// </summary>
+	/// <param name="dialog">An instance of <see cref="Dialog"/>.</param>
+	/// <param name="bottomSheet">An instance of <see cref="IBottomSheet"/>.</param>
+	public static void SetAllowUserInteractionToSwitchBottomSheetSize(this Dialog dialog, in IBottomSheet bottomSheet)
+	{
+		// TODO implement
+	}
+
+	/// <summary>
 	/// Method to update the <see cref="IBottomSheet.BottomSheetSize"/> of the BottomSheet.
 	/// </summary>
 	/// <param name="mauiBottomSheet">An instance of <see cref="MauiBottomSheet"/>.</param>

@@ -45,6 +45,7 @@
 			<Grid.RowDefinitions>
 				<RowDefinition Height="auto" />
 				<RowDefinition Height="auto" />
+				<RowDefinition Height="auto" />
 			</Grid.RowDefinitions>
 			<Button Grid.Row="0" Grid.Column="0"
 					Clicked="NextSizeButton_Clicked"
@@ -55,13 +56,17 @@
 					Style="{StaticResource ConfirmButton}"
 					Text="Decrease size" />
 			<Button Grid.Row="1" Grid.Column="0"
-					Clicked="CloseButton_Clicked"
-					Style="{StaticResource ConfirmButton}"
-					Text="Close" />
-			<Button Grid.Row="1" Grid.Column="1"
 					Clicked="ToggleCanBeDismissedByTappingOutsideOfBottomSheetButton_Clicked"
 					Style="{StaticResource ConfirmButton}"
 					Text="Toggle CanBeDismissed" />
+			<Button Grid.Row="1" Grid.Column="1"
+					Clicked="ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked"
+					Style="{StaticResource ConfirmButton}"
+					Text="Toggle Allow swipe" />
+			<Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+					Clicked="CloseButton_Clicked"
+					Style="{StaticResource ConfirmButton}"
+					Text="Close" />
 		</Grid>
 	</VerticalStackLayout>
 </mct:BottomSheet>

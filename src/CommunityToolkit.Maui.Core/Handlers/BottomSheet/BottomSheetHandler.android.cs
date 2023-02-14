@@ -72,6 +72,16 @@ public partial class BottomSheetHandler : ElementHandler<IBottomSheet, MauiBotto
 	}
 
 	/// <summary>
+	/// Action that's triggered when the BottomSheet <see cref="IBottomSheet.AllowUserInteractionToSwitchBottomSheetSize"/> property changes.
+	/// </summary>
+	/// <param name="handler">An instance of <see cref="BottomSheetHandler"/>.</param>
+	/// <param name="view">An instance of <see cref="IBottomSheet"/>.</param>
+	public static void MapAllowUserInteractionToSwitchBottomSheetSize(BottomSheetHandler handler, IBottomSheet view)
+	{
+		handler.PlatformView.SetAllowUserInteractionToSwitchBottomSheetSize(view);
+	}
+
+	/// <summary>
 	/// Action that's triggered when the BottomSheet <see cref="IBottomSheet.BackgroundColor"/> property changes.
 	/// </summary>
 	/// <param name="handler">An instance of <see cref="BottomSheetHandler"/>.</param>

@@ -72,6 +72,11 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	public static readonly BindableProperty CanBeDismissedByTappingOutsideOfBottomSheetProperty = BindableProperty.Create(nameof(CanBeDismissedByTappingOutsideOfBottomSheet), typeof(bool), typeof(BottomSheet), true);
 
 	/// <summary>
+	///  Backing BindableProperty for the <see cref="AllowUserInteractionToSwitchBottomSheetSize"/> property.
+	/// </summary>
+	public static readonly BindableProperty AllowUserInteractionToSwitchBottomSheetSizeProperty = BindableProperty.Create(nameof(AllowUserInteractionToSwitchBottomSheetSize), typeof(bool), typeof(BottomSheet), true);
+
+	/// <summary>
 	///  Backing BindableProperty for the <see cref="VerticalOptions"/> property.
 	/// </summary>
 	public static readonly BindableProperty VerticalOptionsProperty = BindableProperty.Create(nameof(VerticalOptions), typeof(LayoutAlignment), typeof(BottomSheet), LayoutAlignment.Center);
@@ -305,6 +310,18 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	{
 		get => (bool)GetValue(CanBeDismissedByTappingOutsideOfBottomSheetProperty);
 		set => SetValue(CanBeDismissedByTappingOutsideOfBottomSheetProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets a value indicating whether the use can change the bottom sheet size by interacting with it.
+	/// </summary>
+	/// <remarks>
+	/// When true and the user swipes the view up or down, the bottom sheet will animate to a bigger or smaller size.
+	/// </remarks>
+	public bool AllowUserInteractionToSwitchBottomSheetSize
+	{
+		get => (bool)GetValue(AllowUserInteractionToSwitchBottomSheetSizeProperty);
+		set => SetValue(AllowUserInteractionToSwitchBottomSheetSizeProperty, value);
 	}
 
 	/// <summary>
