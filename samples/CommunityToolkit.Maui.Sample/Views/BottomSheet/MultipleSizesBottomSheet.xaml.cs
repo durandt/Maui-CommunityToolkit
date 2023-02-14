@@ -12,6 +12,9 @@ public partial class MultipleSizesBottomSheet : BottomSheet
 		BottomSheetSize = bottomSheetSizeConstants.Small;
 		BackgroundColor = Colors.White;
 		HandleColor = Color.FromArgb("#F0F2F4");
+		CanBeDismissedByTappingOutsideOfBottomSheet = true;
+		SwipeWillDismissBottomSheet = true;
+		AllowUserInteractionToSwitchBottomSheetSize = false;
 	}
 
 	void PreviousSizeButton_Clicked(object? sender, EventArgs e)
@@ -38,6 +41,11 @@ public partial class MultipleSizesBottomSheet : BottomSheet
 	async void ToggleCanBeDismissedByTappingOutsideOfBottomSheetButton_Clicked(object? sender, EventArgs e)
 	{
 		CanBeDismissedByTappingOutsideOfBottomSheet = !CanBeDismissedByTappingOutsideOfBottomSheet;
+	}
+
+	async void ToggleSwipeWillDismissBottomSheetButton_Clicked(object? sender, EventArgs e)
+	{
+		SwipeWillDismissBottomSheet = !SwipeWillDismissBottomSheet;
 	}
 
 	async void ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked(object? sender, EventArgs e)

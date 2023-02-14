@@ -72,6 +72,11 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	public static readonly BindableProperty CanBeDismissedByTappingOutsideOfBottomSheetProperty = BindableProperty.Create(nameof(CanBeDismissedByTappingOutsideOfBottomSheet), typeof(bool), typeof(BottomSheet), true);
 
 	/// <summary>
+	///  Backing BindableProperty for the <see cref="SwipeWillDismissBottomSheet"/> property.
+	/// </summary>
+	public static readonly BindableProperty SwipeWillDismissBottomSheetProperty = BindableProperty.Create(nameof(SwipeWillDismissBottomSheet), typeof(bool), typeof(BottomSheet), true);
+
+	/// <summary>
 	///  Backing BindableProperty for the <see cref="AllowUserInteractionToSwitchBottomSheetSize"/> property.
 	/// </summary>
 	public static readonly BindableProperty AllowUserInteractionToSwitchBottomSheetSizeProperty = BindableProperty.Create(nameof(AllowUserInteractionToSwitchBottomSheetSize), typeof(bool), typeof(BottomSheet), true);
@@ -310,6 +315,19 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	{
 		get => (bool)GetValue(CanBeDismissedByTappingOutsideOfBottomSheetProperty);
 		set => SetValue(CanBeDismissedByTappingOutsideOfBottomSheetProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets a value indicating whether swiping down the bottom sheet will dismiss it.
+	/// </summary>
+	/// <remarks>
+	/// When true and the user swipes the bottom sheet down it will dismiss.
+	/// On Android - when false the hardware back button is disabled.
+	/// </remarks>
+	public bool SwipeWillDismissBottomSheet
+	{
+		get => (bool)GetValue(SwipeWillDismissBottomSheetProperty);
+		set => SetValue(SwipeWillDismissBottomSheetProperty, value);
 	}
 
 	/// <summary>

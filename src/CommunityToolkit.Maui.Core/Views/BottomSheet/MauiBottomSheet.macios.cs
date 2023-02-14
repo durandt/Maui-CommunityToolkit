@@ -48,6 +48,8 @@ public class MauiBottomSheet : UIViewController
 
 	internal bool BlockUserInteractionToSwitchBottomSheetSize { get; set; }
 
+	internal bool SwipeWillDismissBottomSheet { get; set; }
+
 	double AnimationDuration
 	{
 		get
@@ -319,7 +321,7 @@ public class MauiBottomSheet : UIViewController
 
 	void HandleBackgroundSlide(UIPanGestureRecognizer recognizer)
 	{
-		if (BlockUserInteractionToSwitchBottomSheetSize)
+		if (BlockUserInteractionToSwitchBottomSheetSize && !SwipeWillDismissBottomSheet)
 		{
 			return;
 		}
@@ -331,12 +333,20 @@ public class MauiBottomSheet : UIViewController
 		{
 			case UIGestureRecognizerState.Began:
 				var velocity = recognizer.VelocityInView(View).Y / 60;
-				// If background-swipe should only allow decrease, not increase
-				//if (velocity < 0)
-				//{
-				//	targetBottomSheetSize = VirtualView.BottomSheetSize.Next;
-				//}
-				if (velocity < 0)
+				if (velocity > 0  && SwipeWillDismissBottomSheet)
+				{
+					var smallestSize = VirtualView.BottomSheetSize;
+					while (smallestSize.Previous != null)
+					{
+						smallestSize = smallestSize.Previous;
+					}
+					targetBottomSheetSize = smallestSize;
+				}
+				else if (BlockUserInteractionToSwitchBottomSheetSize)
+				{
+					return;
+				}
+				else if (velocity < 0)
 				{
 					targetBottomSheetSize = VirtualView.BottomSheetSize.Next;
 				}
@@ -355,7 +365,7 @@ public class MauiBottomSheet : UIViewController
 
 	void HandlePopoverSlide(UIPanGestureRecognizer recognizer)
 	{
-		if (BlockUserInteractionToSwitchBottomSheetSize)
+		if (BlockUserInteractionToSwitchBottomSheetSize && !SwipeWillDismissBottomSheet)
 		{
 			return;
 		}
@@ -367,7 +377,20 @@ public class MauiBottomSheet : UIViewController
 		{
 			case UIGestureRecognizerState.Began:
 				var velocity = recognizer.VelocityInView(View).Y / 60;
-				if (velocity < 0)
+				if (velocity > 0  && SwipeWillDismissBottomSheet)
+				{
+					var smallestSize = VirtualView.BottomSheetSize;
+					while (smallestSize.Previous != null)
+					{
+						smallestSize = smallestSize.Previous;
+					}
+					targetBottomSheetSize = smallestSize;
+				}
+				else if (BlockUserInteractionToSwitchBottomSheetSize)
+				{
+					return;
+				}
+				else if (velocity < 0)
 				{
 					targetBottomSheetSize = VirtualView.BottomSheetSize.Next;
 				}

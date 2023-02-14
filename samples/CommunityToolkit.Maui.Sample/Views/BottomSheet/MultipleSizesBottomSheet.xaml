@@ -63,10 +63,14 @@
 					Clicked="ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked"
 					Style="{StaticResource ConfirmButton}"
 					Text="Toggle Allow swipe" />
-			<Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+			<Button Grid.Row="2" Grid.Column="0"
 					Clicked="CloseButton_Clicked"
 					Style="{StaticResource ConfirmButton}"
 					Text="Close" />
+			<Button Grid.Row="2" Grid.Column="1"
+					Clicked="ToggleSwipeWillDismissBottomSheetButton_Clicked"
+					Style="{StaticResource ConfirmButton}"
+					Text="Toggle swipe-dismiss" />
 		</Grid>
 	</VerticalStackLayout>
 </mct:BottomSheet>
