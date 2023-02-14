@@ -87,6 +87,16 @@ public static class BottomSheetExtensions
 	}
 
 	/// <summary>
+	/// Method to update the <see cref="IBottomSheet.SwipeWillDismissBottomSheet"/> property of the BottomSheet.
+	/// </summary>
+	/// <param name="mauiBottomSheet">An instance of <see cref="MauiBottomSheet"/>.</param>
+	/// <param name="bottomSheet">An instance of <see cref="IBottomSheet"/>.</param>
+	public static void SetSwipeWillDismissBottomSheet(this MauiBottomSheet mauiBottomSheet, in IBottomSheet bottomSheet)
+	{
+		mauiBottomSheet.SwipeWillDismissBottomSheet = bottomSheet.SwipeWillDismissBottomSheet;
+	}
+
+	/// <summary>
 	/// Method to update the <see cref="IBottomSheet.AllowUserInteractionToSwitchBottomSheetSize"/> property of the BottomSheet.
 	/// </summary>
 	/// <param name="mauiBottomSheet">An instance of <see cref="MauiBottomSheet"/>.</param>
