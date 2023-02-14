@@ -75,6 +75,11 @@ public interface IBottomSheet : IElement, IVisualTreeElement
 	bool CanBeDismissedByTappingOutsideOfBottomSheet { get; }
 
 	/// <summary>
+	/// Gets the AllowUserInteractionToSwitchBottomSheetSize property.
+	/// </summary>
+	bool AllowUserInteractionToSwitchBottomSheetSize { get; }
+
+	/// <summary>
 	/// Gets the BottomSheet's <see cref="BottomSheetSize"/>.
 	/// </summary>
 	BottomSheetSize BottomSheetSize { get; set; }

@@ -24,7 +24,8 @@ public partial class BottomSheetHandler
 		[nameof(IBottomSheet.Size)] = MapSize,
 		[nameof(IBottomSheet.VerticalOptions)] = MapSize,
 		[nameof(IBottomSheet.HorizontalOptions)] = MapSize,
-		[nameof(IBottomSheet.CanBeDismissedByTappingOutsideOfBottomSheet)] = MapCanBeDismissedByTappingOutsideOfBottomSheet
+		[nameof(IBottomSheet.CanBeDismissedByTappingOutsideOfBottomSheet)] = MapCanBeDismissedByTappingOutsideOfBottomSheet,
+		[nameof(IBottomSheet.AllowUserInteractionToSwitchBottomSheetSize)] = MapAllowUserInteractionToSwitchBottomSheetSize
 	};
 
 	/// <summary>

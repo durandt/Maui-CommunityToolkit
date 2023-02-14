@@ -39,4 +39,9 @@ public partial class MultipleSizesBottomSheet : BottomSheet
 	{
 		CanBeDismissedByTappingOutsideOfBottomSheet = !CanBeDismissedByTappingOutsideOfBottomSheet;
 	}
+
+	async void ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked(object? sender, EventArgs e)
+	{
+		AllowUserInteractionToSwitchBottomSheetSize = !AllowUserInteractionToSwitchBottomSheetSize;
+	}
 }

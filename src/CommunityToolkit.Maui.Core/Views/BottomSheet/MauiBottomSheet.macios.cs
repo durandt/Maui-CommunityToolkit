@@ -46,6 +46,8 @@ public class MauiBottomSheet : UIViewController
 
 	internal MauiBottomSheetPopover? PopoverViewController { get; set; }
 
+	internal bool BlockUserInteractionToSwitchBottomSheetSize { get; set; }
+
 	double AnimationDuration
 	{
 		get
@@ -317,6 +319,11 @@ public class MauiBottomSheet : UIViewController
 
 	void HandleBackgroundSlide(UIPanGestureRecognizer recognizer)
 	{
+		if (BlockUserInteractionToSwitchBottomSheetSize)
+		{
+			return;
+		}
+
 		_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
 		_ = PopoverViewController ?? throw new InvalidOperationException($"{nameof(PopoverViewController)} cannot be null.");
 		_ = PopoverViewController.View ?? throw new InvalidOperationException($"{nameof(PopoverViewController.View)} cannot be null.");
@@ -348,6 +355,11 @@ public class MauiBottomSheet : UIViewController
 
 	void HandlePopoverSlide(UIPanGestureRecognizer recognizer)
 	{
+		if (BlockUserInteractionToSwitchBottomSheetSize)
+		{
+			return;
+		}
+
 		_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
 		_ = PopoverViewController ?? throw new InvalidOperationException($"{nameof(PopoverViewController)} cannot be null.");
 		_ = PopoverViewController.View ?? throw new InvalidOperationException($"{nameof(PopoverViewController.View)} cannot be null.");
