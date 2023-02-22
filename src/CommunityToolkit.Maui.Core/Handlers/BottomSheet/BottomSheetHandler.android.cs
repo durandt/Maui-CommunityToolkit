@@ -120,8 +120,8 @@ public partial class BottomSheetHandler : ElementHandler<IBottomSheet, MauiBotto
 	{
 		ArgumentNullException.ThrowIfNull(handler.Container);
 
-		handler.PlatformView.SetSize(view, handler.Container);
-		handler.PlatformView.SetAnchor(view);
+		//handler.PlatformView.SetSize(handler.Container);
+		//handler.PlatformView.SetAnchor(view);
 	}
 
 	/// <inheritdoc/>

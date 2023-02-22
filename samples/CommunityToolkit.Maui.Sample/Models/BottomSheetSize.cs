@@ -6,7 +6,7 @@ public class BottomSheetSizeConstants
 {
 	public BottomSheetSizeConstants(IDeviceDisplay deviceDisplay)
 	{
-		var width = 0.9 * deviceDisplay.MainDisplayInfo.Width / deviceDisplay.MainDisplayInfo.Density;
+		var width = deviceDisplay.MainDisplayInfo.Width / deviceDisplay.MainDisplayInfo.Density;
 		var tinyHeight = Math.Max(212.0, 0.25 * (deviceDisplay.MainDisplayInfo.Height / deviceDisplay.MainDisplayInfo.Density));
 		var smallHeight = 0.5 * (deviceDisplay.MainDisplayInfo.Height / deviceDisplay.MainDisplayInfo.Density);
 		var mediumHeight = 0.75 * (deviceDisplay.MainDisplayInfo.Height / deviceDisplay.MainDisplayInfo.Density);
