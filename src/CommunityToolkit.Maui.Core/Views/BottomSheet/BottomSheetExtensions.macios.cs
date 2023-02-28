@@ -16,6 +16,7 @@ public static class BottomSheetExtensions
 	/// <param name="bottomSheet">An instance of <see cref="IBottomSheet"/>.</param>
 	public static void SetBottomSheetSize(this MauiBottomSheet mauiBottomSheet, in IBottomSheet bottomSheet)
 	{
+		_ = bottomSheet.BottomSheetSize ?? throw new InvalidOperationException($"{nameof(bottomSheet.BottomSheetSize)} cannot be null.");
 		if (!bottomSheet.BottomSheetSize.ContentSize.IsZero)
 		{
 			mauiBottomSheet.SetBottomSheetSize(bottomSheet.BottomSheetSize);
