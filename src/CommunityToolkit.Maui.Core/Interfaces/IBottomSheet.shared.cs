@@ -114,4 +114,9 @@ public interface IBottomSheet : IElement, IVisualTreeElement
 	/// Occurs when the BottomSheet is dismissed by a user tapping outside of the BottomSheet.
 	/// </summary>
 	void OnDismissedByTappingOutsideOfBottomSheet();
+
+	/// <summary>
+	/// Occurs when the BottomSheet is dismissed by a user swiping it down.
+	/// </summary>
+	void OnDismissedBySwipingDown();
 }
