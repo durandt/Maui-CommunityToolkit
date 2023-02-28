@@ -246,7 +246,7 @@ public class MauiBottomSheet : UIViewController
 				var frame = PopoverViewController.View.Frame;
 				PopoverViewController.View.Frame = new CGRect(x:frame.X, y:newY, width:frame.Width, height:frame.Height);
 			});
-			frameAnimator.AddCompletion(_ =>
+			frameAnimator.AddCompletion(anim =>
 			{
 				if (frameAnimator.Reversed)
 				{
@@ -257,6 +257,8 @@ public class MauiBottomSheet : UIViewController
 				if (collapsed)
 				{
 					DismissViewController(false, null);
+					_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
+					VirtualView.OnDismissedBySwipingDown();
 				}
 
 				runningAnimations.Remove(frameAnimator);

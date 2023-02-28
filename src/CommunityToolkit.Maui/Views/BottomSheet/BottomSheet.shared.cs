@@ -433,6 +433,14 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	}
 
 	/// <summary>
+	/// Invoked when the bottom sheet is dismissed by swiping down.
+	/// </summary>
+	protected internal virtual void OnDismissedBySwipingDown()
+	{
+		taskCompletionSource.TrySetResult(ResultWhenUserTapsOutsideOfBottomSheet);
+	}
+
+	/// <summary>
 	///<inheritdoc/>
 	/// </summary>
 	protected override void OnBindingContextChanged()
@@ -497,6 +505,8 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	void IBottomSheet.OnOpened() => OnOpened();
 
 	void IBottomSheet.OnDismissedByTappingOutsideOfBottomSheet() => OnDismissedByTappingOutsideOfBottomSheet();
+
+	void IBottomSheet.OnDismissedBySwipingDown() => OnDismissedBySwipingDown();
 
 	void IPropertyPropagationController.PropagatePropertyChanged(string propertyName) =>
 		PropertyPropagationExtensions.PropagatePropertyChanged(propertyName, this, ((IVisualTreeElement)this).GetVisualChildren());
