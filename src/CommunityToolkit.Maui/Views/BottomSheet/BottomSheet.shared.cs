@@ -437,6 +437,12 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	{
 		((IBottomSheet)this).OnClosed(result);
 		dismissWeakEventManager.HandleEvent(this, new BottomSheetClosedEventArgs(result, wasDismissedByTappingOutsideOfBottomSheet), nameof(Closed));
+		if (Content != null)
+		{
+			BindingContext = null;
+			Parent = null;
+			Content = null;
+		}
 	}
 
 	/// <summary>
