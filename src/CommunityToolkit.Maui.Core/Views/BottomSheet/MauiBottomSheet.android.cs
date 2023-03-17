@@ -14,7 +14,7 @@ namespace CommunityToolkit.Maui.Core.Views;
 /// <summary>
 /// The native implementation of BottomSheet control.
 /// </summary>
-public class MauiBottomSheet : BottomSheetDialog, IDialogInterfaceOnCancelListener
+public class MauiBottomSheet : BottomSheetDialog, IDialogInterfaceOnCancelListener, IDialogInterfaceOnShowListener
 {
 	readonly IMauiContext mauiContext;
 	AView? platformViewContainer { get; set; }
@@ -41,6 +41,20 @@ public class MauiBottomSheet : BottomSheetDialog, IDialogInterfaceOnCancelListen
 		: base(context)
 	{
 		this.mauiContext = mauiContext ?? throw new ArgumentNullException(nameof(mauiContext));
+	}
+
+	/// <inheritdoc/>
+	protected override void OnCreate(Bundle? savedInstanceState)
+	{
+		base.OnCreate(savedInstanceState);
+		SetOnShowListener(this);
+	}
+
+	/// <inheritdoc/>
+	public void OnShow(IDialogInterface? dialog)
+	{
+		_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
+		VirtualView.OnAppeared();
 	}
 
 	/// <summary>

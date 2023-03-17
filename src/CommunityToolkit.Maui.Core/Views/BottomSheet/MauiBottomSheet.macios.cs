@@ -214,7 +214,10 @@ public class MauiBottomSheet : UIViewController
 		{
 			_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
 
-			AnimateTransitionIfNeeded(VirtualView.BottomSheetSize, AnimationDuration);
+			AnimateTransitionIfNeeded(VirtualView.BottomSheetSize, AnimationDuration, onCompletion: () =>
+			{
+				VirtualView.OnAppeared();
+			});
 		}
 	}
 
@@ -240,6 +243,12 @@ public class MauiBottomSheet : UIViewController
 
 		if (!runningAnimations.Any())
 		{
+			if (collapsed)
+			{
+				_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
+				VirtualView.OnDisappearing();
+			}
+
 			var frameAnimator = new UIViewPropertyAnimator(duration:duration, ratio:1, () =>
 			{
 				var newY = !collapsed ? View.Frame.Height - (nfloat)size.TotalHeight : View.Frame.Height;
