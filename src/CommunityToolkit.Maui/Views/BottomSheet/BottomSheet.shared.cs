@@ -93,6 +93,8 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 
 	readonly WeakEventManager dismissWeakEventManager = new();
 	readonly WeakEventManager openedWeakEventManager = new();
+	readonly WeakEventManager appearedWeakEventManager = new();
+	readonly WeakEventManager disappearingWeakEventManager = new();
 	readonly Lazy<PlatformConfigurationRegistry<BottomSheet>> platformConfigurationRegistry;
 
 	TaskCompletionSource<object?> taskCompletionSource = new();
@@ -128,6 +130,20 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	{
 		add => openedWeakEventManager.AddEventHandler(value);
 		remove => openedWeakEventManager.RemoveEventHandler(value);
+	}
+
+	/// <inheritdoc/>
+	public event EventHandler<EventArgs> Appeared
+	{
+		add => appearedWeakEventManager.AddEventHandler(value);
+		remove => appearedWeakEventManager.RemoveEventHandler(value);
+	}
+
+	/// <inheritdoc/>
+	public event EventHandler<EventArgs> Disappearing
+	{
+		add => disappearingWeakEventManager.AddEventHandler(value);
+		remove => disappearingWeakEventManager.RemoveEventHandler(value);
 	}
 
 	/// <summary>
@@ -405,7 +421,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	/// <summary>
 	/// Invokes the <see cref="Opened"/> event.
 	/// </summary>
-	internal virtual void OnOpened() =>
+	public virtual void OnOpened() =>
 		openedWeakEventManager.HandleEvent(this, BottomSheetOpenedEventArgs.Empty, nameof(Opened));
 
 	/// <summary>
@@ -417,11 +433,23 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	/// /// <param name="wasDismissedByTappingOutsideOfBottomSheet">
 	/// Sets the <see cref="BottomSheetClosedEventArgs"/> Property of <see cref="BottomSheetClosedEventArgs.WasDismissedByTappingOutsideOfBottomSheet"/>/>.
 	/// </param>
-	protected void OnClosed(object? result, bool wasDismissedByTappingOutsideOfBottomSheet)
+	public virtual void OnClosed(object? result, bool wasDismissedByTappingOutsideOfBottomSheet)
 	{
 		((IBottomSheet)this).OnClosed(result);
 		dismissWeakEventManager.HandleEvent(this, new BottomSheetClosedEventArgs(result, wasDismissedByTappingOutsideOfBottomSheet), nameof(Closed));
 	}
+
+	/// <summary>
+	/// Invokes the <see cref="Appeared"/> event.
+	/// </summary>
+	public virtual void OnAppeared() =>
+		appearedWeakEventManager.HandleEvent(this, EventArgs.Empty, nameof(Appeared));
+
+	/// <summary>
+	/// Invokes the <see cref="Disappearing"/> event.
+	/// </summary>
+	public virtual void OnDisappearing() =>
+		disappearingWeakEventManager.HandleEvent(this, EventArgs.Empty, nameof(Disappearing));
 
 	/// <summary>
 	/// Invoked when the bottom sheet is dismissed by tapping outside of the bottom sheet.

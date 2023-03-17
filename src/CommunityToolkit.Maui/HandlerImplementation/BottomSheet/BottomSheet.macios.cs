@@ -25,6 +25,7 @@ public partial class BottomSheet
 			var view = (View?)virtualView.Content ?? throw new InvalidOperationException($"{nameof(IBottomSheet.Content)} can't be null here.");
 			var contentPage = new ContentPage
 			{
+				Parent = virtualView.Parent as Element,
 				Content = view
 			};
 

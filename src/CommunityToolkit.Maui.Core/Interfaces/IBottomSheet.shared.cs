@@ -119,4 +119,25 @@ public interface IBottomSheet : IElement, IVisualTreeElement
 	/// Occurs when the BottomSheet is dismissed by a user swiping it down.
 	/// </summary>
 	void OnDismissedBySwipingDown();
+
+	/// <summary>
+	/// Event that is triggered when bottom sheet has appeared
+	/// </summary>
+	event EventHandler<EventArgs> Appeared;
+
+	/// <summary>
+	/// Event that is triggered when bottom sheet starts disappearing
+	/// </summary>
+	event EventHandler<EventArgs> Disappearing;
+
+	/// <summary>
+	/// Occurs when the BottomSheet has appeared.
+	/// </summary>
+	void OnAppeared();
+
+	/// <summary>
+	/// Occurs when the BottomSheet starts disappearing.
+	/// </summary>
+	void OnDisappearing();
+
 }

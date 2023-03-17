@@ -15,6 +15,42 @@ public partial class MultipleSizesBottomSheet : BottomSheet
 		CanBeDismissedByTappingOutsideOfBottomSheet = true;
 		SwipeWillDismissBottomSheet = true;
 		AllowUserInteractionToSwitchBottomSheetSize = false;
+		_Content.Loaded += ContentOnLoaded;
+		_Content.Unloaded += ContentOnUnloaded;
+	}
+
+	void ContentOnLoaded(object? sender, EventArgs e)
+	{
+		Console.WriteLine("Content Loaded");
+	}
+
+	void ContentOnUnloaded(object? sender, EventArgs e)
+	{
+		Console.WriteLine("Content Unloaded");
+	}
+
+	public override void OnAppeared()
+	{
+		base.OnAppeared();
+		Console.WriteLine("OnAppeared");
+	}
+
+	public override void OnDisappearing()
+	{
+		base.OnDisappearing();
+		Console.WriteLine("OnDisappearing");
+	}
+
+	public override void OnOpened()
+	{
+		base.OnOpened();
+		Console.WriteLine("OnOpened");
+	}
+
+	public override void OnClosed(object? result, bool wasDismissedByTappingOutsideOfBottomSheet)
+	{
+		base.OnClosed(result, wasDismissedByTappingOutsideOfBottomSheet);
+		Console.WriteLine("OnClosed");
 	}
 
 	void PreviousSizeButton_Clicked(object? sender, EventArgs e)
