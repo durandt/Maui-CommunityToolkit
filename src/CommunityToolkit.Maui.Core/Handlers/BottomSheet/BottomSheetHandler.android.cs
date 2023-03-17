@@ -17,6 +17,10 @@ public partial class BottomSheetHandler : ElementHandler<IBottomSheet, MauiBotto
 	public static void MapOnClosed(BottomSheetHandler handler, IBottomSheet view, object? result)
 	{
 		var bottomSheet = handler.PlatformView;
+		if (bottomSheet.IsDisposed())
+		{
+			return;
+		}
 
 		if (bottomSheet.IsShowing)
 		{
