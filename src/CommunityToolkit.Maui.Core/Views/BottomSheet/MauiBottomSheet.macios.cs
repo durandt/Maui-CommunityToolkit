@@ -17,6 +17,7 @@ public class MauiBottomSheet : UIViewController
 	readonly List<UIViewPropertyAnimator> runningAnimations = new();
 	nfloat animationProgressWhenInterrupted;
 	double lastCompletedFraction;
+	bool currentAnimationInteractiveCollapse;
 	BottomSheetSize? currentBottomSheetSize;
 	BottomSheetSize? targetBottomSheetSize;
 
@@ -229,7 +230,7 @@ public class MauiBottomSheet : UIViewController
 		}
 	}
 
-	void AnimateTransitionIfNeeded(BottomSheetSize size, double duration, bool collapsed = false, Action? onCompletion = null)
+	void AnimateTransitionIfNeeded(BottomSheetSize size, double duration, bool collapsed = false, bool interactive = false, Action? onCompletion = null)
 	{
 		_ = View ?? throw new InvalidOperationException($"{nameof(View)} cannot be null.");
 		_ = PopoverViewController ?? throw new InvalidOperationException($"{nameof(PopoverViewController)} cannot be null.");
@@ -243,7 +244,7 @@ public class MauiBottomSheet : UIViewController
 
 		if (!runningAnimations.Any())
 		{
-			if (collapsed)
+			if (collapsed && !interactive)
 			{
 				_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
 				VirtualView.OnDisappearing();
@@ -257,6 +258,7 @@ public class MauiBottomSheet : UIViewController
 			});
 			frameAnimator.AddCompletion(anim =>
 			{
+				currentAnimationInteractiveCollapse = false;
 				if (frameAnimator.Reversed)
 				{
 					runningAnimations.Clear();
@@ -279,6 +281,7 @@ public class MauiBottomSheet : UIViewController
 				}
 			});
 			frameAnimator.StartAnimation();
+			currentAnimationInteractiveCollapse = interactive && collapsed;
 			runningAnimations.Add(frameAnimator);
 
 			var popoverBackgroundAnimator = new UIViewPropertyAnimator(duration: duration,
@@ -317,7 +320,7 @@ public class MauiBottomSheet : UIViewController
 		var tcs = new TaskCompletionSource();
 		if (VirtualView != null)
 		{
-			AnimateTransitionIfNeeded(VirtualView.BottomSheetSize, AnimationDuration, true, () =>
+			AnimateTransitionIfNeeded(VirtualView.BottomSheetSize, AnimationDuration, collapsed:true, onCompletion:() =>
 			{
 				tcs.TrySetResult();
 			});
@@ -523,7 +526,7 @@ public class MauiBottomSheet : UIViewController
     {
 	    if (!runningAnimations.Any())
 	    {
-		    AnimateTransitionIfNeeded(size, duration:duration, collapsed:size.IsCollapsed);
+		    AnimateTransitionIfNeeded(size, duration:duration, collapsed:size.IsCollapsed, interactive:true);
 	    }
 
 	    foreach (var animator in runningAnimations)
@@ -553,6 +556,14 @@ public class MauiBottomSheet : UIViewController
     /// </summary>
     void ContinueInteractiveTransition()
     {
+	    if (currentAnimationInteractiveCollapse
+	        && runningAnimations.Any()
+	        && !runningAnimations.Any(a => a.Reversed) // Do not call OnAppearing if animation is reversed!
+	        && VirtualView != null)
+	    {
+			VirtualView.OnDisappearing();
+	    }
+
 	    foreach (var animator in runningAnimations)
 	    {
 		    animator.ContinueAnimation(null, 0);
