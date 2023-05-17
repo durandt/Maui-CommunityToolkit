@@ -265,20 +265,30 @@ public class MauiBottomSheet : UIViewController
 					return;
 				}
 
-				if (collapsed)
+				void CompletionCore()
 				{
-					DismissViewController(false, null);
-					_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
-					VirtualView.OnDismissedBySwipingDown();
+					runningAnimations.Remove(frameAnimator);
+					onCompletion?.Invoke();
+					if (VirtualView != null)
+					{
+						VirtualView.BottomSheetSize = size;
+						currentBottomSheetSize = size;
+					}
 				}
 
-				runningAnimations.Remove(frameAnimator);
-				onCompletion?.Invoke();
-				if (VirtualView != null)
+				if (collapsed)
 				{
-					VirtualView.BottomSheetSize = size;
-					currentBottomSheetSize = size;
+					DismissViewController(false, () =>
+					{
+						_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
+						VirtualView.OnDismissedBySwipingDown();
+
+						CompletionCore();
+					});
+					return;
 				}
+
+				CompletionCore();
 			});
 			frameAnimator.StartAnimation();
 			currentAnimationInteractiveCollapse = interactive && collapsed;

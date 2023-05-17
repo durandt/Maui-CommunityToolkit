@@ -103,7 +103,8 @@ public interface IBottomSheet : IElement, IVisualTreeElement
 	/// Occurs when the BottomSheet is closed.
 	/// </summary>
 	/// <param name="result">Return value from the BottomSheet.</param>
-	void OnClosed(object? result = null);
+	/// <param name="onCompletion">Called when bottom sheet has finished animating and is removed from view tree</param>
+	void OnClosed(object? result = null, Action? onCompletion = null);
 
 	/// <summary>
 	/// Occurs when the BottomSheet is opened.

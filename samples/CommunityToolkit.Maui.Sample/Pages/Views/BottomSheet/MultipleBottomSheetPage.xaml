@@ -10,6 +10,11 @@
     <ContentPage.Content>
         <ScrollView>
             <VerticalStackLayout Spacing="12">
+                <HorizontalStackLayout>
+                    <Label Text="Show Modal when bottom sheet closes" />
+                    <Switch x:Name="_ShowModalSwitch" IsToggled="False"
+                            ThumbColor="{StaticResource NormalButtonTextColor}"/>
+                </HorizontalStackLayout>
                 <Button Text="Toggle Size BottomSheet" Clicked="HandleToggleSizeBottomSheetButtonClicked" />
             </VerticalStackLayout>
         </ScrollView>

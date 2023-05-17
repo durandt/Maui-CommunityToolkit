@@ -26,7 +26,34 @@ public partial class MultipleBottomSheetPage : BasePage<MultipleBottomSheetViewM
 
 	async void HandleToggleSizeBottomSheetButtonClicked(object sender, EventArgs e)
 	{
+		while (Navigation.ModalStack.Any())
+		{
+			await Navigation.PopModalAsync();
+		}
+
 		var toggleSizeBottomSheet = new MultipleSizesBottomSheet(bottomSheetSizeConstants, deviceDisplay);
 		await this.ShowBottomSheetAsync(toggleSizeBottomSheet);
+		if (_ShowModalSwitch.IsToggled)
+		{
+			await toggleSizeBottomSheet.ShowingResult;
+			await ShowTestModalAsync();
+		}
+	}
+
+	async Task ShowTestModalAsync()
+	{
+		var button = new Button { Text = "Close" };
+		button.Clicked += async (sender, e) => { await Navigation.PopModalAsync(); };
+		await Navigation.PushModalAsync(new NavigationPage(new ContentPage()
+		{
+			Content = new StackLayout
+			{
+				Children =
+				{
+					new Label { Text = "Modal shown" },
+					button
+				}
+			}
+		}));
 	}
 }

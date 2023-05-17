@@ -47,9 +47,9 @@ public partial class MultipleSizesBottomSheet : BottomSheet
 		Console.WriteLine("OnOpened");
 	}
 
-	public override void OnClosed(object? result, bool wasDismissedByTappingOutsideOfBottomSheet)
+	public override void OnClosed(object? result, bool wasDismissedByTappingOutsideOfBottomSheet, Action onCompletion)
 	{
-		base.OnClosed(result, wasDismissedByTappingOutsideOfBottomSheet);
+		base.OnClosed(result, wasDismissedByTappingOutsideOfBottomSheet, onCompletion);
 		Console.WriteLine("OnClosed");
 	}
 
