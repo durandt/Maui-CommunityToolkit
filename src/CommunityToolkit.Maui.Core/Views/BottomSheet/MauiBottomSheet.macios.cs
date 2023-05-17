@@ -70,7 +70,7 @@ public class MauiBottomSheet : UIViewController
 	{
 		if (element.Parent?.Handler is not PageHandler)
 		{
-			throw new InvalidOperationException($"The {nameof(element.Parent)} must be of type {typeof(PageHandler)}.");
+			throw new InvalidOperationException($"The {nameof(element.Parent)} must be of type {typeof(PageHandler)} (found {element.Parent?.Handler?.GetType()}).");
 		}
 
 		VirtualView = element;
