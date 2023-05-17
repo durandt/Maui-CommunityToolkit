@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Core.Views;
+﻿using CommunityToolkit.Maui.Core.Models;
+using CommunityToolkit.Maui.Core.Views;
 using Microsoft.Maui.Handlers;
 
 namespace CommunityToolkit.Maui.Core.Handlers;
@@ -18,6 +19,10 @@ public partial class BottomSheetHandler : ElementHandler<IBottomSheet, MauiBotto
 		{
 			//await vc.DismissViewControllerAsync(true);
 			await handler.PlatformView.CloseAsync();
+			if (result is BottomSheetCloseParams bottomSheetCloseParams)
+			{
+				bottomSheetCloseParams.OnCompletion?.Invoke();
+			}
 		}
 
 		handler.DisconnectHandler(handler.PlatformView);

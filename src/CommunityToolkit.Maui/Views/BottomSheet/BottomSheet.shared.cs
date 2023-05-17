@@ -98,6 +98,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	readonly Lazy<PlatformConfigurationRegistry<BottomSheet>> platformConfigurationRegistry;
 
 	TaskCompletionSource<object?> taskCompletionSource = new();
+	TaskCompletionSource showingTaskCompletionSource = new();
 	Window? window;
 
 	/// <summary>
@@ -150,6 +151,11 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	/// Gets the final result of the dismissed bottom sheet.
 	/// </summary>
 	public Task<object?> Result => taskCompletionSource.Task;
+
+	/// <summary>
+	/// Task to await until bottom sheet is fully dismissed
+	/// </summary>
+	public Task ShowingResult => showingTaskCompletionSource.Task;
 
 	/// <summary>
 	/// Gets or sets the <see cref="View"/> content to render in the BottomSheet.
@@ -415,7 +421,8 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	public void Close(object? result = null)
 	{
 		taskCompletionSource.TrySetResult(result);
-		OnClosed(result, false);
+
+		OnClosed(result, false, () => showingTaskCompletionSource.TrySetResult());
 	}
 
 	/// <summary>
@@ -433,9 +440,10 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	/// /// <param name="wasDismissedByTappingOutsideOfBottomSheet">
 	/// Sets the <see cref="BottomSheetClosedEventArgs"/> Property of <see cref="BottomSheetClosedEventArgs.WasDismissedByTappingOutsideOfBottomSheet"/>/>.
 	/// </param>
-	public virtual void OnClosed(object? result, bool wasDismissedByTappingOutsideOfBottomSheet)
+	/// <param name="onCompletion">Called when closed performed</param>
+	public virtual void OnClosed(object? result, bool wasDismissedByTappingOutsideOfBottomSheet, Action onCompletion)
 	{
-		((IBottomSheet)this).OnClosed(result);
+		((IBottomSheet)this).OnClosed(result, onCompletion);
 		dismissWeakEventManager.HandleEvent(this, new BottomSheetClosedEventArgs(result, wasDismissedByTappingOutsideOfBottomSheet), nameof(Closed));
 		if (Content != null)
 		{
@@ -463,7 +471,8 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	protected internal virtual void OnDismissedByTappingOutsideOfBottomSheet()
 	{
 		taskCompletionSource.TrySetResult(ResultWhenUserTapsOutsideOfBottomSheet);
-		OnClosed(ResultWhenUserTapsOutsideOfBottomSheet, true);
+		OnClosed(ResultWhenUserTapsOutsideOfBottomSheet, true, () => { });
+		showingTaskCompletionSource.TrySetResult();
 	}
 
 	/// <summary>
@@ -472,6 +481,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	protected internal virtual void OnDismissedBySwipingDown()
 	{
 		taskCompletionSource.TrySetResult(ResultWhenUserTapsOutsideOfBottomSheet);
+		showingTaskCompletionSource.TrySetResult();
 	}
 
 	/// <summary>
@@ -534,7 +544,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 		ArgumentNullException.ThrowIfNull(newValue);
 	}
 
-	void IBottomSheet.OnClosed(object? result) => Handler.Invoke(nameof(IBottomSheet.OnClosed), result);
+	void IBottomSheet.OnClosed(object? result, Action? onCompletion) => Handler.Invoke(nameof(IBottomSheet.OnClosed), new BottomSheetCloseParams(result, onCompletion));
 
 	void IBottomSheet.OnOpened() => OnOpened();
 

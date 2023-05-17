@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Core.Views;
+﻿using CommunityToolkit.Maui.Core.Models;
+using CommunityToolkit.Maui.Core.Views;
 using Microsoft.Maui.Handlers;
 using AView = Android.Views.View;
 
@@ -25,6 +26,11 @@ public partial class BottomSheetHandler : ElementHandler<IBottomSheet, MauiBotto
 		if (bottomSheet.IsShowing)
 		{
 			bottomSheet.Dismiss();
+		}
+
+		if (result is BottomSheetCloseParams bottomSheetCloseParams)
+		{
+			bottomSheetCloseParams.OnCompletion?.Invoke();
 		}
 
 		handler.DisconnectHandler(bottomSheet);
