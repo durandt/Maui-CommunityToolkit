@@ -306,6 +306,10 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 			if (value != null)
 			{
 				Size = value.ContentSize;
+				if (Content is VisualElement contentVisualElement)
+				{
+					contentVisualElement.HeightRequest = value.ContentSize.Height;
+				}
 			}
 		}
 	}
