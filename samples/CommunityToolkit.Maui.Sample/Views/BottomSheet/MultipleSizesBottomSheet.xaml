@@ -5,9 +5,9 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
 	xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
 
-	<VerticalStackLayout Style="{StaticResource BottomSheetLayout}" Spacing="4" x:Name="_Content">
+	<ContentView x:Name="_Content" VerticalOptions="Start">
 
-		<VerticalStackLayout.Resources>
+		<ContentView.Resources>
 			<ResourceDictionary>
 				<Style x:Key="Title" TargetType="Label">
 					<Setter Property="FontSize" Value="26" />
@@ -32,45 +32,92 @@
 					<Setter Property="VerticalOptions" Value="EndAndExpand" />
 				</Style>
 			</ResourceDictionary>
-		</VerticalStackLayout.Resources>
+		</ContentView.Resources>
 
-		<Label Style="{StaticResource Title}" Text="BottomSheet Title" />
-		<BoxView Style="{StaticResource Divider}" />
-		<Label Style="{StaticResource Content}" Text="This is a platform specific bottom sheet with a .NET MAUI View being rendered." />
-		<Grid RowSpacing="4" ColumnSpacing="4">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="*" />
-			</Grid.ColumnDefinitions>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="auto" />
-				<RowDefinition Height="auto" />
-				<RowDefinition Height="auto" />
-			</Grid.RowDefinitions>
-			<Button Grid.Row="0" Grid.Column="0"
-					Clicked="NextSizeButton_Clicked"
-					Style="{StaticResource ConfirmButton}"
-					Text="Increase size" />
-			<Button Grid.Row="0" Grid.Column="1"
-					Clicked="PreviousSizeButton_Clicked"
-					Style="{StaticResource ConfirmButton}"
-					Text="Decrease size" />
-			<Button Grid.Row="1" Grid.Column="0"
-					Clicked="ToggleCanBeDismissedByTappingOutsideOfBottomSheetButton_Clicked"
-					Style="{StaticResource ConfirmButton}"
-					Text="Toggle CanBeDismissed" />
-			<Button Grid.Row="1" Grid.Column="1"
-					Clicked="ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked"
-					Style="{StaticResource ConfirmButton}"
-					Text="Toggle Allow swipe" />
-			<Button Grid.Row="2" Grid.Column="0"
-					Clicked="CloseButton_Clicked"
-					Style="{StaticResource ConfirmButton}"
-					Text="Close" />
-			<Button Grid.Row="2" Grid.Column="1"
-					Clicked="ToggleSwipeWillDismissBottomSheetButton_Clicked"
-					Style="{StaticResource ConfirmButton}"
-					Text="Toggle swipe-dismiss" />
-		</Grid>
-	</VerticalStackLayout>
+        <!--ContentView x:Name="_ContentContent" Style="{StaticResource BottomSheetLayout}" BackgroundColor="#30119933" VerticalOptions="Fill">
+            <Grid VerticalOptions="Fill" RowDefinitions="*,72">
+                <StackLayout Grid.Row="0" Padding="16" Orientation="Horizontal" Spacing="16" VerticalOptions="Start" HorizontalOptions="Center">
+                    <Button Clicked="NextSizeButton_Clicked"
+                            Style="{StaticResource ConfirmButton}"
+                            Text="Increase size" />
+                    <Button Clicked="PreviousSizeButton_Clicked"
+                            Style="{StaticResource ConfirmButton}"
+                            Text="Decrease size" />
+                </StackLayout>
+                <StackLayout Grid.Row="1" Padding="16" BackgroundColor="#30991133">
+                    <Button Clicked="CloseButton_Clicked" Style="{StaticResource ConfirmButton}" Text="Close" HorizontalOptions="Center" />
+                </StackLayout>
+            </Grid>
+        </ContentView-->
+
+		<ScrollView x:Name="_ScrollView" Style="{StaticResource BottomSheetLayout}">
+            <VerticalStackLayout Spacing="4" x:Name="_ContentContent">
+                <Label Style="{StaticResource Title}" Text="BottomSheet Title" />
+		        <BoxView Style="{StaticResource Divider}" />
+		        <Label Style="{StaticResource Content}" Text="This is a platform specific bottom sheet with a .NET MAUI View being rendered." />
+		        <HorizontalStackLayout Spacing="4">
+                    <Label Style="{StaticResource Content}" Text="{Binding Width, Source={x:Reference _Content}, StringFormat='Width={0:F2}'}" />
+                    <Label Style="{StaticResource Content}" Text="{Binding Height, Source={x:Reference _Content}, StringFormat='Height={0:F2}'}" />
+                </HorizontalStackLayout>
+		        <HorizontalStackLayout Spacing="4">
+                    <Label Style="{StaticResource Content}" Text="{Binding Width, Source={x:Reference _ScrollView}, StringFormat='Width={0:F2}'}" />
+                    <Label Style="{StaticResource Content}" Text="{Binding Height, Source={x:Reference _ScrollView}, StringFormat='Height={0:F2}'}" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="4">
+                    <Label Style="{StaticResource Content}" Text="{Binding Width, Source={x:Reference _ContentContent}, StringFormat='Width={0:F2}'}" />
+                    <Label Style="{StaticResource Content}" Text="{Binding Height, Source={x:Reference _ContentContent}, StringFormat='Height={0:F2}'}" />
+                </HorizontalStackLayout>
+		        <Grid RowSpacing="4" ColumnSpacing="4">
+			        <Grid.ColumnDefinitions>
+				        <ColumnDefinition Width="*" />
+				        <ColumnDefinition Width="*" />
+			        </Grid.ColumnDefinitions>
+			        <Grid.RowDefinitions>
+				        <RowDefinition Height="auto" />
+				        <RowDefinition Height="auto" />
+				        <RowDefinition Height="auto" />
+			        </Grid.RowDefinitions>
+			        <Button Grid.Row="0" Grid.Column="0"
+					        Clicked="NextSizeButton_Clicked"
+					        Style="{StaticResource ConfirmButton}"
+					        Text="Increase size" />
+			        <Button Grid.Row="0" Grid.Column="1"
+					        Clicked="PreviousSizeButton_Clicked"
+					        Style="{StaticResource ConfirmButton}"
+					        Text="Decrease size" />
+			        <Button Grid.Row="1" Grid.Column="0"
+					        Clicked="ToggleCanBeDismissedByTappingOutsideOfBottomSheetButton_Clicked"
+					        Style="{StaticResource ConfirmButton}"
+					        Text="Toggle CanBeDismissed" />
+			        <Button Grid.Row="1" Grid.Column="1"
+					        Clicked="ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked"
+					        Style="{StaticResource ConfirmButton}"
+					        Text="Toggle Allow swipe" />
+			        <Button Grid.Row="2" Grid.Column="0"
+					        Clicked="CloseButton_Clicked"
+					        Style="{StaticResource ConfirmButton}"
+					        Text="Close" />
+			        <Button Grid.Row="2" Grid.Column="1"
+					        Clicked="ToggleSwipeWillDismissBottomSheetButton_Clicked"
+					        Style="{StaticResource ConfirmButton}"
+					        Text="Toggle swipe-dismiss" />
+		        </Grid>
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="Hej this is some text" />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                    <Label Text="And some more..." />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+	</ContentView>
 </mct:BottomSheet>
