@@ -51,6 +51,8 @@ public class MauiBottomSheet : UIViewController
 
 	internal bool SwipeWillDismissBottomSheet { get; set; }
 
+	bool IsIpad { get; set; }
+
 	double AnimationDuration
 	{
 		get
@@ -118,6 +120,7 @@ public class MauiBottomSheet : UIViewController
 	{
 		Control = func(virtualView);
 
+		IsIpad = DeviceInfo.Current.Idiom == DeviceIdiom.Tablet && DeviceInfo.Current.Platform == DevicePlatform.iOS;
 		SetPresentationController();
 
 		_ = View ?? throw new InvalidOperationException($"{nameof(View)} cannot be null.");
@@ -253,6 +256,10 @@ public class MauiBottomSheet : UIViewController
 			var frameAnimator = new UIViewPropertyAnimator(duration:duration, ratio:1, () =>
 			{
 				var newY = !collapsed ? View.Frame.Height - (nfloat)size.TotalHeight : View.Frame.Height;
+				if (IsIpad)
+				{
+					newY = 0;
+				}
 				var frame = PopoverViewController.View.Frame;
 				PopoverViewController.View.Frame = new CGRect(x:frame.X, y:newY, width:frame.Width, height:frame.Height);
 			});
