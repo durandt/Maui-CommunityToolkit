@@ -15,7 +15,7 @@ public partial class BottomSheet
 #endif
 	};
 
-	internal static void RemapForControls()
+	internal static new void RemapForControls()
 	{
 		BottomSheetHandler.BottomSheetCommandMapper = ControlBottomSheetCommandMapper;
 	}
