@@ -90,7 +90,9 @@ public abstract class CompareConverter<TObject> : BaseConverterOneWay<IComparabl
 
 		if (!Enum.IsDefined(typeof(OperatorType), ComparisonOperator))
 		{
+#pragma warning disable CA2208
 			throw new ArgumentOutOfRangeException($"is expected to be of type {nameof(OperatorType)}", nameof(ComparisonOperator));
+#pragma warning restore CA2208
 		}
 
 		if (!(TrueObject is null ^ FalseObject is not null))
