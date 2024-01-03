@@ -99,7 +99,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 
 	TaskCompletionSource<object?> taskCompletionSource = new();
 	TaskCompletionSource showingTaskCompletionSource = new();
-	Window? window;
+	Window window;
 
 	/// <summary>
 	/// Instantiates a new instance of <see cref="BottomSheet"/>.
@@ -110,9 +110,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 		platformConfigurationRegistry = new Lazy<PlatformConfigurationRegistry<BottomSheet>>(() => new(this));
 
 		VerticalOptions = HorizontalOptions = LayoutAlignment.Center;
-#if WINDOWS
-		this.HandlerChanged += OnBottomSheetHandlerChanged;
-#endif
+		window = Window;
 	}
 
 	/// <summary>
@@ -385,7 +383,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	/// <summary>
 	/// Property that represents the Window that's showing the BottomSheet.
 	/// </summary>
-	public Window? Window
+	public Window Window
 	{
 		get => window;
 		set
@@ -548,7 +546,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 		ArgumentNullException.ThrowIfNull(newValue);
 	}
 
-	void IBottomSheet.OnClosed(object? result, Action? onCompletion) => Handler.Invoke(nameof(IBottomSheet.OnClosed), new BottomSheetCloseParams(result, onCompletion));
+	void IBottomSheet.OnClosed(object? result, Action? onCompletion) => Handler?.Invoke(nameof(IBottomSheet.OnClosed), new BottomSheetCloseParams(result, onCompletion));
 
 	void IBottomSheet.OnOpened() => OnOpened();
 

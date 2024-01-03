@@ -27,14 +27,14 @@ public static partial class BottomSheetExtensions
 		}
 		else
 		{
-			void handler(object? sender, NavigatedToEventArgs args)
+			void handler(object? sender, EventArgs args)
 			{
-				page.NavigatedTo -= handler;
+				page.Loaded -= handler;
 
 				CreateAndShowBottomSheet(page, bottomSheet);
 			}
 
-			page.NavigatedTo += handler;
+			page.Loaded += handler;
 		}
 	}
 
@@ -60,9 +60,9 @@ public static partial class BottomSheetExtensions
 		{
 			var taskCompletionSource = new TaskCompletionSource<object?>();
 
-			async void handler(object? sender, NavigatedToEventArgs args)
+			async void handler(object? sender, EventArgs args)
 			{
-				page.NavigatedTo -= handler;
+				page.Loaded -= handler;
 
 				try
 				{
@@ -76,7 +76,7 @@ public static partial class BottomSheetExtensions
 				}
 			}
 
-			page.NavigatedTo += handler;
+			page.Loaded += handler;
 
 			return taskCompletionSource.Task;
 		}
@@ -85,7 +85,7 @@ public static partial class BottomSheetExtensions
 	static void CreateBottomSheet(Page page, BottomSheet bottomSheet)
 	{
 		var mauiContext = GetMauiContext(page);
-		bottomSheet.Parent = PageExtensions.GetCurrentPage(page);
+		bottomSheet.Parent = page.GetCurrentPage();
 		var platformBottomSheet = bottomSheet.ToHandler(mauiContext);
 		platformBottomSheet.Invoke(nameof(IBottomSheet.OnOpened));
 	}
