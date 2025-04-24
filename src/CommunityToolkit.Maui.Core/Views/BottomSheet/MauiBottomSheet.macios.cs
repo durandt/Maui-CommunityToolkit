@@ -223,6 +223,7 @@ public class MauiBottomSheet : UIViewController
 				VirtualView.OnAppeared();
 			});
 		}
+		// TODO(thidu06): If not animated, set view bounds so that it will appear
 	}
 
 	internal void SetBottomSheetSize(BottomSheetSize size)
@@ -597,7 +598,7 @@ public class MauiBottomSheet : UIViewController
 	void AddToCurrentPageViewController(UIViewController viewController)
 	{
 		viewController.ModalPresentationStyle = UIModalPresentationStyle.OverFullScreen;
-		viewController.PresentViewController(this, false, null);
+		viewController.PresentViewController(this, true, null);
 	}
 
 	sealed class PopoverDelegate : UIPopoverPresentationControllerDelegate
