@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using Microsoft.Maui.Graphics.Platform;
+﻿using Microsoft.Maui.Graphics.Platform;
 using Microsoft.Maui.Platform;
 
 namespace CommunityToolkit.Maui.Core.Views;
@@ -7,21 +6,19 @@ namespace CommunityToolkit.Maui.Core.Views;
 /// <summary>
 /// Drawing view service
 /// </summary>
-public static class DrawingViewService
+public static partial class DrawingViewService
 {
 	/// <summary>
 	/// Get image stream from lines
 	/// </summary>
-	/// <param name="lines">Drawing lines</param>
-	/// <param name="imageSize">Maximum image size. The image will be resized proportionally.</param>
-	/// <param name="background">Image background</param>
+	/// <param name="options">The options controlling how the resulting image is generated.</param>
 	/// <param name="token"><see cref="CancellationToken"/></param>
 	/// <returns>Image stream</returns>
-	public static ValueTask<Stream> GetImageStream(IList<IDrawingLine> lines, Size imageSize, Paint? background, CancellationToken token = default)
+	public static ValueTask<Stream> GetPlatformImageStream(ImageLineOptions options, CancellationToken token = default)
 	{
 		token.ThrowIfCancellationRequested();
 
-		var image = GetUIImageForLines(lines, background);
+		var image = GetUIImageForLines(options.Lines, options.Background, options.CanvasSize);
 		if (image is null)
 		{
 			return ValueTask.FromResult(Stream.Null);
@@ -29,7 +26,7 @@ public static class DrawingViewService
 
 		token.ThrowIfCancellationRequested();
 
-		var imageAsPng = GetMaximumUIImage(image, imageSize.Width, imageSize.Height)
+		var imageAsPng = GetMaximumUIImage(image, options.DesiredSize.Width, options.DesiredSize.Height)
 							.AsPNG() ?? throw new InvalidOperationException("Unable to convert image to PNG");
 
 		return ValueTask.FromResult(imageAsPng.AsStream());
@@ -38,18 +35,17 @@ public static class DrawingViewService
 	/// <summary>
 	/// Get image stream from points
 	/// </summary>
-	/// <param name="points">Drawing points</param>
-	/// <param name="imageSize">Image size</param>
-	/// <param name="lineWidth">Line Width</param>
-	/// <param name="strokeColor">Line color</param>
-	/// <param name="background">Image background</param>
+	/// <param name="options">The options controlling how the resulting image is generated.</param>
 	/// <param name="token"><see cref="CancellationToken"/></param>
 	/// <returns>Image stream</returns>
-	public static ValueTask<Stream> GetImageStream(IList<PointF> points, Size imageSize, float lineWidth, Color strokeColor, Paint? background, CancellationToken token = default)
+	public static ValueTask<Stream> GetPlatformImageStream(ImagePointOptions options, CancellationToken token = default)
 	{
 		token.ThrowIfCancellationRequested();
 
-		var image = GetUIImageForPoints(points, lineWidth, strokeColor, background);
+		var imageSize = options.DesiredSize;
+		var canvasSize = options.CanvasSize;
+
+		var image = GetUIImageForPoints(options.Points, options.LineWidth, options.StrokeColor, options.Background, canvasSize);
 		if (image is null)
 		{
 			return ValueTask.FromResult(Stream.Null);
@@ -57,24 +53,25 @@ public static class DrawingViewService
 
 		token.ThrowIfCancellationRequested();
 
-		var imageAsPng = GetMaximumUIImage(image, imageSize.Width, imageSize.Height)
+		var imageAsPng = GetMaximumUIImage(image, canvasSize?.Width ?? imageSize.Width, canvasSize?.Height ?? imageSize.Height)
 							.AsPNG() ?? throw new InvalidOperationException("Unable to convert image to PNG");
 
 		return ValueTask.FromResult(imageAsPng.AsStream());
 	}
 
 	static UIImage? GetUIImageForPoints(ICollection<PointF> points,
-		NFloat lineWidth,
+		nfloat lineWidth,
 		Color strokeColor,
-		Paint? background)
+		Paint? background,
+		Size? canvasSize = null)
 	{
 		return GetUIImage(points, (context, offset) =>
 		{
 			DrawStrokes(context, points.ToList(), lineWidth, strokeColor, offset);
-		}, background, lineWidth);
+		}, background, lineWidth, canvasSize);
 	}
 
-	static UIImage? GetUIImageForLines(IList<IDrawingLine> lines, in Paint? background)
+	static UIImage? GetUIImageForLines(IList<IDrawingLine> lines, in Paint? background, Size? canvasSize = null)
 	{
 		var points = lines.SelectMany(x => x.Points).ToList();
 		var drawingLineWithLargestLineWidth = lines.MaxBy(x => x.LineWidth);
@@ -83,23 +80,23 @@ public static class DrawingViewService
 		{
 			throw new InvalidOperationException("Unable to generate image. No Lines Found");
 		}
-		
+
 		return GetUIImage(points, (context, offset) =>
 		{
 			foreach (var line in lines)
 			{
 				DrawStrokes(context, line.Points, line.LineWidth, line.LineColor, offset);
 			}
-		}, background, drawingLineWithLargestLineWidth.LineWidth);
+		}, background, drawingLineWithLargestLineWidth.LineWidth, canvasSize);
 	}
 
-	static UIImage? GetUIImage(ICollection<PointF> points, Action<CGContext, Size> drawStrokes, Paint? background, NFloat maxLineWidth)
+	static UIImage? GetUIImage(ICollection<PointF> points, Action<CGContext, Size> drawStrokes, Paint? background, nfloat maxLineWidth, Size? canvasSize)
 	{
 		const int minSize = 1;
 		var minPointX = points.Min(p => p.X) - maxLineWidth;
 		var minPointY = points.Min(p => p.Y) - maxLineWidth;
-		var drawingWidth = points.Max(p => p.X) - minPointX + maxLineWidth;
-		var drawingHeight = points.Max(p => p.Y) - minPointY + maxLineWidth;
+		var drawingWidth = canvasSize?.Width ?? points.Max(p => p.X) - minPointX + maxLineWidth;
+		var drawingHeight = canvasSize?.Height ?? points.Max(p => p.Y) - minPointY + maxLineWidth;
 
 		if (drawingWidth < minSize || drawingHeight < minSize)
 		{
@@ -113,7 +110,9 @@ public static class DrawingViewService
 
 		DrawBackground(context, background, imageSize);
 
-		drawStrokes(context, new Size(minPointX, minPointY));
+		var offset = canvasSize is null ? new Size(minPointX, minPointY) : Size.Zero;
+
+		drawStrokes(context, offset);
 
 		var image = UIGraphics.GetImageFromCurrentImageContext();
 		UIGraphics.EndImageContext();
@@ -121,7 +120,7 @@ public static class DrawingViewService
 		return image;
 	}
 
-	static void DrawStrokes(CGContext context, IList<PointF> points, NFloat lineWidth, Color strokeColor, Size offset)
+	static void DrawStrokes(CGContext context, IList<PointF> points, nfloat lineWidth, Color strokeColor, Size offset)
 	{
 		context.SetStrokeColor(strokeColor.ToCGColor());
 		context.SetLineWidth(lineWidth);
@@ -129,7 +128,7 @@ public static class DrawingViewService
 		context.SetLineJoin(CGLineJoin.Round);
 
 		var (startPointX, startPointY) = points[0];
-		context.MoveTo(new NFloat(startPointX), new NFloat(startPointY));
+		context.MoveTo(new nfloat(startPointX), new nfloat(startPointY));
 		context.AddLines(points.Select(p => new CGPoint(p.X - offset.Width, p.Y - offset.Height)).ToArray());
 
 		context.StrokePath();
@@ -162,7 +161,7 @@ public static class DrawingViewService
 			case LinearGradientPaint linearGradientBrush:
 				{
 					var colors = new CGColor[linearGradientBrush.GradientStops.Length];
-					var positions = new NFloat[linearGradientBrush.GradientStops.Length];
+					var positions = new nfloat[linearGradientBrush.GradientStops.Length];
 					for (var index = 0; index < linearGradientBrush.GradientStops.Length; index++)
 					{
 						var gradientStop = linearGradientBrush.GradientStops[index];
@@ -182,7 +181,7 @@ public static class DrawingViewService
 			case RadialGradientPaint radialGradientBrush:
 				{
 					var colors = new CGColor[radialGradientBrush.GradientStops.Length];
-					var positions = new NFloat[radialGradientBrush.GradientStops.Length];
+					var positions = new nfloat[radialGradientBrush.GradientStops.Length];
 					for (var index = 0; index < radialGradientBrush.GradientStops.Length; index++)
 					{
 						var gradientStop = radialGradientBrush.GradientStops[index];
@@ -200,7 +199,7 @@ public static class DrawingViewService
 		}
 	}
 
-	static void DrawRadialGradient(CGContext context, CGSize size, CGColor[] colors, NFloat[] locations)
+	static void DrawRadialGradient(CGContext context, CGSize size, CGColor[] colors, nfloat[] locations)
 	{
 		var colorSpace = CGColorSpace.CreateDeviceRGB();
 
@@ -214,13 +213,13 @@ public static class DrawingViewService
 		context.AddPath(path);
 		context.EOClip();
 
-		context.DrawRadialGradient(gradient, center, 0, center, (NFloat)radius, 0);
+		context.DrawRadialGradient(gradient, center, 0, center, (nfloat)radius, 0);
 
 		context.RestoreState();
 	}
 
 
-	static void DrawLinearGradient(CGContext context, CGSize size, CGColor[] colors, NFloat[] locations, CGPoint startPoint, CGPoint endPoint)
+	static void DrawLinearGradient(CGContext context, CGSize size, CGColor[] colors, nfloat[] locations, CGPoint startPoint, CGPoint endPoint)
 	{
 		var colorSpace = CGColorSpace.CreateDeviceRGB();
 

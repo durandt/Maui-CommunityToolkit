@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Maui.Core.Extensions;
 
 namespace CommunityToolkit.Maui.Core.Views;
@@ -14,7 +14,6 @@ public partial class MauiDrawingView
 	PointF previousPoint;
 	PathF currentPath = new();
 	MauiDrawingLine? currentLine;
-	Paint paint = new SolidPaint(DrawingViewDefaults.BackgroundColor);
 
 	/// <summary>
 	/// Event raised when drawing line completed 
@@ -55,7 +54,7 @@ public partial class MauiDrawingView
 	/// <summary>
 	/// Drawing Lines
 	/// </summary>
-	public ObservableCollection<MauiDrawingLine> Lines { get; } = new();
+	public ObservableCollection<MauiDrawingLine> Lines { get; } = [];
 
 	/// <summary>
 	/// Enable or disable multiline mode
@@ -87,13 +86,13 @@ public partial class MauiDrawingView
 	/// </summary>
 	public Paint Paint
 	{
-		get => paint;
+		get;
 		set
 		{
-			paint = value;
+			field = value;
 			Redraw();
 		}
-	}
+	} = new SolidPaint(DrawingViewDefaults.BackgroundColor);
 
 	/// <summary>
 	/// Clean up resources
@@ -120,10 +119,10 @@ public partial class MauiDrawingView
 		currentPath.MoveTo(previousPoint.X, previousPoint.Y);
 		currentLine = new MauiDrawingLine
 		{
-			Points = new ObservableCollection<PointF>
-			{
+			Points =
+			[
 				new(previousPoint.X, previousPoint.Y)
-			},
+			],
 			LineColor = LineColor,
 			LineWidth = LineWidth
 		};
@@ -204,14 +203,9 @@ public partial class MauiDrawingView
 		currentPath = new PathF();
 	}
 
-	class DrawingViewDrawable : IDrawable
+	sealed class DrawingViewDrawable(MauiDrawingView drawingView) : IDrawable
 	{
-		readonly MauiDrawingView drawingView;
-
-		public DrawingViewDrawable(MauiDrawingView drawingView)
-		{
-			this.drawingView = drawingView;
-		}
+		readonly MauiDrawingView drawingView = drawingView;
 
 		public void Draw(ICanvas canvas, RectF dirtyRect)
 		{
@@ -233,7 +227,7 @@ public partial class MauiDrawingView
 			canvas.StrokeDashOffset = 0;
 			canvas.StrokeLineCap = LineCap.Round;
 			canvas.StrokeLineJoin = LineJoin.Round;
-			canvas.StrokeDashPattern = Array.Empty<float>();
+			canvas.StrokeDashPattern = [];
 		}
 
 		static void DrawCurrentLines(in ICanvas canvas, in MauiDrawingView drawingView)

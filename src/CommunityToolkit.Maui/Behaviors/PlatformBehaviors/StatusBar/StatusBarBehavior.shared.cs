@@ -1,5 +1,4 @@
-
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Platform;
@@ -8,10 +7,26 @@ using CommunityToolkit.Maui.Extensions;
 namespace CommunityToolkit.Maui.Behaviors;
 
 /// <summary>
+/// When to apply the status bar color and style.
+/// </summary>
+public enum StatusBarApplyOn
+{
+	/// <summary>
+	/// Apply color and style when the behavior has been attached to the page.
+	/// </summary>
+	OnBehaviorAttachedTo,
+
+	/// <summary>
+	/// Apply color and style when the page has been navigated to.
+	/// </summary>
+	OnPageNavigatedTo
+}
+
+/// <summary>
 /// <see cref="PlatformBehavior{TView,TPlatformView}"/> that controls the Status bar color
 /// </summary>
 [UnsupportedOSPlatform("Windows"), UnsupportedOSPlatform("MacCatalyst"), UnsupportedOSPlatform("MacOS"), UnsupportedOSPlatform("Tizen")]
-public class StatusBarBehavior : PlatformBehavior<Page>
+public partial class StatusBarBehavior : BasePlatformBehavior<Page>
 {
 	/// <summary>
 	/// <see cref="BindableProperty"/> that manages the StatusBarColor property.
@@ -19,12 +34,17 @@ public class StatusBarBehavior : PlatformBehavior<Page>
 	public static readonly BindableProperty StatusBarColorProperty =
 		BindableProperty.Create(nameof(StatusBarColor), typeof(Color), typeof(StatusBarBehavior), Colors.Transparent);
 
-
 	/// <summary>
 	/// <see cref="BindableProperty"/> that manages the StatusBarColor property.
 	/// </summary>
 	public static readonly BindableProperty StatusBarStyleProperty =
 		BindableProperty.Create(nameof(StatusBarStyle), typeof(StatusBarStyle), typeof(StatusBarBehavior), StatusBarStyle.Default);
+
+	/// <summary>
+	/// <see cref="BindableProperty"/> that manages the ApplyOn property.
+	/// </summary>
+	public static readonly BindableProperty ApplyOnProperty =
+		BindableProperty.Create(nameof(ApplyOn), typeof(StatusBarApplyOn), typeof(StatusBarBehavior), StatusBarApplyOn.OnBehaviorAttachedTo);
 
 	/// <summary>
 	/// Property that holds the value of the Status bar color. 
@@ -44,38 +64,78 @@ public class StatusBarBehavior : PlatformBehavior<Page>
 		set => SetValue(StatusBarStyleProperty, value);
 	}
 
+	/// <summary>
+	/// When the status bar color and style should be applied.
+	/// </summary>
+	public StatusBarApplyOn ApplyOn
+	{
+		get => (StatusBarApplyOn)GetValue(ApplyOnProperty);
+		set => SetValue(ApplyOnProperty, value);
+	}
+
+
 #if !(WINDOWS || MACCATALYST || TIZEN)
 
 	/// <inheritdoc /> 
 #if IOS
-	protected override void OnAttachedTo(Page bindable, UIKit.UIView platformView)
+	protected override void OnAttachedTo(Page page, UIKit.UIView platformView)
 #elif ANDROID
-	protected override void OnAttachedTo(Page bindable, Android.Views.View platformView)
+	protected override void OnAttachedTo(Page page, Android.Views.View platformView)
 #else
-	protected override void OnAttachedTo(Page bindable, object platformView)
+	protected override void OnAttachedTo(Page page, object platformView)
 #endif
 	{
-		StatusBar.SetColor(StatusBarColor);
-		StatusBar.SetStyle(StatusBarStyle);
+		base.OnAttachedTo(page, platformView);
+
+		if (ApplyOn is StatusBarApplyOn.OnBehaviorAttachedTo)
+		{
 #if IOS
-		bindable.SizeChanged += new EventHandler(page_SizeChanged);
+			StatusBar.SetBarSize(Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific.Page.GetUseSafeArea(page));
+#endif
+
+			StatusBar.SetColor(StatusBarColor);
+			StatusBar.SetStyle(StatusBarStyle);
+		}
+
+		page.NavigatedTo += OnPageNavigatedTo;
+#if IOS
+		page.SizeChanged += OnPageSizeChanged;
 #endif
 	}
 
-#if IOS
 	/// <inheritdoc /> 
-	protected override void OnDetachedFrom(Page bindable, UIKit.UIView platformView)
+#if IOS
+	protected override void OnDetachedFrom(Page page, UIKit.UIView platformView)
+#elif ANDROID
+	protected override void OnDetachedFrom(Page page, Android.Views.View platformView)
+#else
+	protected override void OnDetachedFrom(Page page, object platformView)
+#endif
 	{
-		bindable.SizeChanged -= new EventHandler(page_SizeChanged);
+#if IOS
+		page.SizeChanged -= OnPageSizeChanged;
+#endif
+		base.OnDetachedFrom(page, platformView);
+
+		page.NavigatedTo -= OnPageNavigatedTo;
+	}
+
+#if IOS
+	static void OnPageSizeChanged(object? sender, EventArgs e)
+	{
+		ArgumentNullException.ThrowIfNull(sender);
+		StatusBar.SetBarSize(Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific.Page.GetUseSafeArea((Page)sender));
 	}
 #endif
 
-#if IOS
-	void page_SizeChanged(object? sender, EventArgs e)
+	void OnPageNavigatedTo(object? sender, NavigatedToEventArgs e)
 	{
-		StatusBar.UpdateBarSize();
+		if (ApplyOn is StatusBarApplyOn.OnPageNavigatedTo)
+		{
+			StatusBar.SetColor(StatusBarColor);
+			StatusBar.SetStyle(StatusBarStyle);
+		}
 	}
-#endif
 
 	/// <inheritdoc /> 
 	protected override void OnPropertyChanged([CallerMemberName] string? propertyName = null)

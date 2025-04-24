@@ -6,9 +6,9 @@ namespace CommunityToolkit.Maui.Storage;
 /// <inheritdoc />
 public sealed partial class FileSaverImplementation : IFileSaver
 {
-	readonly List<string> allFilesExtension = new() { "." };
+	readonly List<string> allFilesExtension = ["."];
 
-	async Task<string> InternalSaveAsync(string initialPath, string fileName, Stream stream, CancellationToken cancellationToken)
+	async Task<string> InternalSaveAsync(string initialPath, string fileName, Stream stream, IProgress<double>? progress, CancellationToken cancellationToken)
 	{
 		var savePicker = new FileSavePicker
 		{
@@ -19,7 +19,7 @@ public sealed partial class FileSaverImplementation : IFileSaver
 		var extension = Path.GetExtension(fileName);
 		if (!string.IsNullOrEmpty(extension))
 		{
-			savePicker.FileTypeChoices.Add(extension, new List<string> { extension });
+			savePicker.FileTypeChoices.Add(extension, [extension]);
 		}
 
 		savePicker.FileTypeChoices.Add("All files", allFilesExtension);
@@ -34,7 +34,7 @@ public sealed partial class FileSaverImplementation : IFileSaver
 			throw new FileSaveException("Operation cancelled or Path doesn't exist.");
 		}
 
-		await WriteStream(stream, file.Path, cancellationToken).ConfigureAwait(false);
+		await WriteStream(stream, file.Path, progress, cancellationToken).ConfigureAwait(false);
 		return file.Path;
 
 		void CancelFilePickerOperation()
@@ -43,8 +43,8 @@ public sealed partial class FileSaverImplementation : IFileSaver
 		}
 	}
 
-	Task<string> InternalSaveAsync(string fileName, Stream stream, CancellationToken cancellationToken)
+	Task<string> InternalSaveAsync(string fileName, Stream stream, IProgress<double>? progress, CancellationToken cancellationToken)
 	{
-		return InternalSaveAsync(string.Empty, fileName, stream, cancellationToken);
+		return InternalSaveAsync(string.Empty, fileName, stream, progress, cancellationToken);
 	}
 }

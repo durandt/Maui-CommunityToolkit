@@ -1,13 +1,15 @@
 ﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CommunityToolkit.Maui.Behaviors;
 
 /// <summary>
 /// The <see cref="MultiValidationBehavior"/> is a behavior that allows the user to combine multiple validators to validate text input depending on specified parameters. For example, an <see cref="Entry"/> control can be styled differently depending on whether a valid or an invalid text input is provided. By allowing the user to chain multiple existing validators together, it offers a high degree of customizability when it comes to validation. Additional properties handling validation are inherited from <see cref="ValidationBehavior"/>.
 /// </summary>
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[RequiresUnreferencedCode($"{nameof(MultiValidationBehavior)} is not trim safe because it uses bindings with string paths.")]
 [ContentProperty(nameof(Children))]
-public class MultiValidationBehavior : ValidationBehavior
+public partial class MultiValidationBehavior : ValidationBehavior
 {
 	/// <summary>
 	/// Backing BindableProperty for the <see cref="Errors"/> property.
@@ -21,12 +23,7 @@ public class MultiValidationBehavior : ValidationBehavior
 	public static readonly BindableProperty ErrorProperty =
 		BindableProperty.CreateAttached(nameof(GetError), typeof(object), typeof(MultiValidationBehavior), null);
 
-	readonly ObservableCollection<ValidationBehavior> children = new();
-
-	/// <summary>
-	/// Constructor for this behavior.
-	/// </summary>
-	public MultiValidationBehavior() => children.CollectionChanged += OnChildrenCollectionChanged;
+	readonly ObservableCollection<ValidationBehavior> children = [];
 
 	/// <summary>
 	/// All child behaviors that are part of this <see cref="MultiValidationBehavior"/>. This is a bindable property.
@@ -34,7 +31,7 @@ public class MultiValidationBehavior : ValidationBehavior
 	public IList<ValidationBehavior> Children => children;
 
 	/// <summary>
-	/// Holds the errors from all of the nested invalid validators in <see cref="Children"/>. This is a bindable property.
+	/// Holds the errors from all the nested invalid validators in <see cref="Children"/>. This is a bindable property.
 	/// </summary>
 	public List<object?>? Errors
 	{
@@ -59,15 +56,15 @@ public class MultiValidationBehavior : ValidationBehavior
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> ValidateAsync(object? value, CancellationToken token)
 	{
-		await Task.WhenAll(children.Select(c =>
+		await Task.WhenAll(children.Select(async validationBehavior =>
 		{
-			c.Value = value;
-			return c.ValidateNestedAsync(token).AsTask();
+			validationBehavior.Value = value;
+			await validationBehavior.ValidateNestedAsync(token);
 		})).ConfigureAwait(false);
 
-		var errors = children.Where(c => c.IsNotValid).Select(GetError);
+		var errors = children.Where(static c => c.IsNotValid).Select(GetError).ToList();
 
-		if (!errors.Any())
+		if (errors.Count is 0)
 		{
 			Errors = null;
 			return true;
@@ -75,32 +72,9 @@ public class MultiValidationBehavior : ValidationBehavior
 
 		if (!Errors?.SequenceEqual(errors) ?? true)
 		{
-			Errors = errors.ToList();
+			Errors = errors;
 		}
 
 		return false;
-	}
-
-	void OnChildrenCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-	{
-		if (e.NewItems != null)
-		{
-			foreach (var child in e.NewItems.OfType<ValidationBehavior>())
-			{
-				child.TrySetBindingContext(new Binding
-				{
-					Path = BindingContextProperty.PropertyName,
-					Source = this
-				});
-			}
-		}
-
-		if (e.OldItems != null)
-		{
-			foreach (var child in e.OldItems.OfType<ValidationBehavior>())
-			{
-				child.TryRemoveBindingContext();
-			}
-		}
 	}
 }

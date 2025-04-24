@@ -6,12 +6,13 @@ namespace CommunityToolkit.Maui.Views;
 public partial class Popup
 {
 	/// <summary>
-	/// 
+	/// Popup CommandMapper
 	/// </summary>
 	public static CommandMapper<IPopup, PopupHandler> ControlPopUpCommandMapper = new(PopupHandler.PopUpCommandMapper)
 	{
 #if IOS || MACCATALYST
-		[nameof(IPopup.OnOpened)] = MapOnOpened
+		[nameof(IPopup.OnOpened)] = MapOnOpened,
+		[nameof(IPopup.OnClosed)] = MapOnClosed
 #endif
 	};
 

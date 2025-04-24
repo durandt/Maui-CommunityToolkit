@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Maui.Core.Extensions;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Handlers;
 
@@ -7,19 +8,14 @@ namespace CommunityToolkit.Maui.Core.Views;
 /// <summary>
 /// The native implementation of Popup control.
 /// </summary>
-public class MauiPopup : UIViewController
+/// <remarks>
+/// Constructor of <see cref="MauiPopup"/>.
+/// </remarks>
+/// <param name="mauiContext">An instance of <see cref="IMauiContext"/>.</param>
+/// <exception cref="ArgumentNullException">If <paramref name="mauiContext"/> is null an exception will be thrown. </exception>
+public class MauiPopup(IMauiContext mauiContext) : UIViewController
 {
-	readonly IMauiContext mauiContext;
-
-	/// <summary>
-	/// Constructor of <see cref="MauiPopup"/>.
-	/// </summary>
-	/// <param name="mauiContext">An instance of <see cref="IMauiContext"/>.</param>
-	/// <exception cref="ArgumentNullException">If <paramref name="mauiContext"/> is null an exception will be thrown. </exception>
-	public MauiPopup(IMauiContext mauiContext)
-	{
-		this.mauiContext = mauiContext ?? throw new ArgumentNullException(nameof(mauiContext));
-	}
+	readonly IMauiContext mauiContext = mauiContext ?? throw new ArgumentNullException(nameof(mauiContext));
 
 	/// <summary>
 	/// An instance of the <see cref="PageHandler"/> that holds the <see cref="IPopup.Content"/>.
@@ -46,25 +42,23 @@ public class MauiPopup : UIViewController
 		base.ViewDidLayoutSubviews();
 
 		_ = View ?? throw new InvalidOperationException($"{nameof(View)} cannot be null.");
+		_ = View.Superview ?? throw new InvalidOperationException($"{nameof(View.Superview)} cannot be null.");
 
 		View.Superview.Layer.CornerRadius = 0.0f;
 		View.Superview.Layer.MasksToBounds = false;
-		PresentationController?.ContainerView?.Subviews.OfType<UIImageView>().FirstOrDefault()?.RemoveFromSuperview();
+
+		if (PresentationController is not null)
+		{
+			SetShadowView(PresentationController.ContainerView);
+		}
 
 		SetElementSize(new Size(View.Bounds.Width, View.Bounds.Height));
-	}
 
-	/// <inheritdoc/>
-	public override void ViewDidDisappear(bool animated)
-	{
-		if (ViewController?.View is UIView view)
+		if (VirtualView is not null)
 		{
-			var overlayView = GetOverlayView(view);
-			overlayView.RemoveFromSuperview();
-			overlayView.Dispose();
+			this.SetSize(VirtualView);
+			this.SetLayout(VirtualView);
 		}
-		
-		base.ViewDidDisappear(animated);
 	}
 
 	/// <inheritdoc/>
@@ -73,20 +67,21 @@ public class MauiPopup : UIViewController
 		coordinator.AnimateAlongsideTransition(_ =>
 		{
 			// Before screen rotate
-			if (ViewController?.View is UIView view)
-			{
-				var overlayView = GetOverlayView(view);
-				overlayView.Frame = new CGRect(0, 0, view.Frame.Width, view.Frame.Height);
-			}
 		}, _ =>
 		{
 			// After screen rotate
 			if (VirtualView is not null)
 			{
-				PopupExtensions.SetSize(this, VirtualView);
-				PopupExtensions.SetLayout(this, VirtualView);
+				this.SetSize(VirtualView);
+				this.SetLayout(VirtualView);
 			}
 		});
+
+		if (View is not null)
+		{
+			View.Bounds = new CGRect(0, 0, PreferredContentSize.Width, PreferredContentSize.Height);
+		}
+
 		base.ViewWillTransitionToSize(toSize, coordinator);
 	}
 
@@ -118,24 +113,10 @@ public class MauiPopup : UIViewController
 #endif
 
 		ViewController ??= rootViewController;
-		SetDimmingBackgroundEffect();
-	}
-
-	void SetDimmingBackgroundEffect()
-	{
-		if (ViewController?.View is UIView view)
-		{
-			var overlayView = GetOverlayView(view);
-			overlayView.Bounds = view.Bounds;
-			overlayView.Layer.RemoveAllAnimations();
-			overlayView.Frame = new CGRect(0, 0, view.Frame.Width, view.Frame.Height);
-			overlayView.BackgroundColor = UIColor.Black.ColorWithAlpha(0.4f);
-			view.AddSubview(overlayView);
-		}
 	}
 
 	/// <summary>
-	/// Method to CleanUp the resources of the <see cref="MauiPopup"/>.
+	/// Method to clean up the resources of the <see cref="MauiPopup"/>.
 	/// </summary>
 	public void CleanUp()
 	{
@@ -175,29 +156,34 @@ public class MauiPopup : UIViewController
 		this.SetLayout(virtualView);
 	}
 
-	static UIView GetOverlayView(UIView view)
+	static void SetShadowView(in UIView target)
 	{
-		const int overlayViewTagNumber = 38483;
-
-		var overlayViewTag = new IntPtr(overlayViewTagNumber);
-		var overlayView = view.Subviews
-								.AsEnumerable()
-								.FirstOrDefault(x => x.Tag == overlayViewTag);
-
-		if (overlayView is null)
+		if (target.Class.Name is "_UICutoutShadowView")
 		{
-			overlayView = new UIView();
-			overlayView.Tag = overlayViewTag;
+			target.RemoveFromSuperview();
 		}
 
-		return overlayView;
+		if (target.Class.Name is "_UIPopoverDimmingView")
+		{
+			target.BackgroundColor = UIColor.Black.ColorWithAlpha(0.4f);
+		}
+
+		foreach (var view in target.Subviews)
+		{
+			SetShadowView(view);
+		}
 	}
 
-	void SetView(UIView view, PageHandler control)
+	void SetView(UIView view, IPlatformViewHandler control)
 	{
 		view.AddSubview(control.ViewController?.View ?? throw new InvalidOperationException($"{nameof(control.ViewController.View)} cannot be null."));
-		view.Bounds = new(0, 0, PreferredContentSize.Width, PreferredContentSize.Height);
+		view.Bounds = new CGRect(0, 0, PreferredContentSize.Width, PreferredContentSize.Height);
 		AddChildViewController(control.ViewController);
+
+		view.SafeTopAnchor().ConstraintEqualTo(control.ViewController.View.SafeTopAnchor()).Active = true;
+		view.SafeBottomAnchor().ConstraintEqualTo(control.ViewController.View.SafeBottomAnchor()).Active = true;
+		view.SafeLeadingAnchor().ConstraintEqualTo(control.ViewController.View.SafeLeadingAnchor()).Active = true;
+		view.SafeTrailingAnchor().ConstraintEqualTo(control.ViewController.View.SafeTrailingAnchor()).Active = true;
 
 		if (VirtualView is not null)
 		{
@@ -210,7 +196,7 @@ public class MauiPopup : UIViewController
 		var popOverDelegate = new PopoverDelegate();
 		popOverDelegate.PopoverDismissedEvent += HandlePopoverDelegateDismissed;
 
-		UIPopoverPresentationController presentationController = (UIPopoverPresentationController)(PresentationController ?? throw new InvalidOperationException($"{nameof(PresentationController)} cannot be null."));
+		var presentationController = (UIPopoverPresentationController)(PresentationController ?? throw new InvalidOperationException($"{nameof(PresentationController)} cannot be null."));
 		presentationController.SourceView = ViewController?.View ?? throw new InvalidOperationException($"{nameof(ViewController.View)} cannot be null.");
 
 		presentationController.Delegate = popOverDelegate;
@@ -239,6 +225,9 @@ public class MauiPopup : UIViewController
 		}
 
 		public override UIModalPresentationStyle GetAdaptivePresentationStyle(UIPresentationController forPresentationController) =>
+			UIModalPresentationStyle.None;
+
+		public override UIModalPresentationStyle GetAdaptivePresentationStyle(UIPresentationController controller, UITraitCollection traitCollection) =>
 			UIModalPresentationStyle.None;
 
 		public override void DidDismiss(UIPresentationController presentationController) =>

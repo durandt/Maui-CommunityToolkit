@@ -8,28 +8,32 @@ namespace CommunityToolkit.Maui.Media;
 /// <inheritdoc />
 public sealed partial class SpeechToTextImplementation
 {
-	[MemberNotNull(nameof(audioEngine), nameof(recognitionTask), nameof(liveSpeechRequest), nameof(getRecognitionTaskCompletionSource))]
-	Task InternalStartListeningAsync(CultureInfo culture, CancellationToken cancellationToken)
+	[MemberNotNull(nameof(audioEngine), nameof(recognitionTask), nameof(liveSpeechRequest))]
+	Task InternalStartListeningAsync(SpeechToTextOptions options, CancellationToken cancellationToken)
 	{
-		speechRecognizer = new SFSpeechRecognizer(NSLocale.FromLocaleIdentifier(culture.Name));
-
-		ResetGetRecognitionTaskCompletionSource(cancellationToken);
+		speechRecognizer = new SFSpeechRecognizer(NSLocale.FromLocaleIdentifier(options.Culture.Name));
 
 		if (!speechRecognizer.Available)
 		{
 			throw new ArgumentException("Speech recognizer is not available");
 		}
 
-		audioEngine = new AVAudioEngine();
-		liveSpeechRequest = new SFSpeechAudioBufferRecognitionRequest();
-		
+		audioEngine = new AVAudioEngine
+		{
+			AutoShutdownEnabled = false
+		};
+		liveSpeechRequest = new SFSpeechAudioBufferRecognitionRequest()
+		{
+			ShouldReportPartialResults = options.ShouldReportPartialResults
+		};
+
 		InitializeAvAudioSession(out var audioSession);
 
-		var mode = audioSession.AvailableModes.Contains(AVAudioSession.ModeMeasurement)
-			? AVAudioSession.ModeMeasurement
-			: audioSession.AvailableModes[0];
+		var mode = audioSession.AvailableModes.Contains("AVAudioSessionModeMeasurement")
+			? AVAudioSessionMode.Measurement
+			: AVAudioSessionMode.Default;
 
-		audioSession.SetMode(new NSString(mode), out var audioSessionError);
+		audioSession.SetMode(mode, out var audioSessionError);
 		if (audioSessionError is not null)
 		{
 			throw new Exception(audioSessionError.LocalizedDescription);
@@ -52,7 +56,7 @@ public sealed partial class SpeechToTextImplementation
 		{
 			throw new Exception(error.LocalizedDescription);
 		}
-		
+
 		cancellationToken.ThrowIfCancellationRequested();
 
 		var currentIndex = 0;
@@ -61,7 +65,7 @@ public sealed partial class SpeechToTextImplementation
 			if (err is not null)
 			{
 				StopRecording();
-				getRecognitionTaskCompletionSource.TrySetException(new Exception(err.LocalizedDescription));
+				OnRecognitionResultCompleted(SpeechToTextResult.Failed(new Exception(err.LocalizedDescription)));
 			}
 			else
 			{
@@ -69,8 +73,7 @@ public sealed partial class SpeechToTextImplementation
 				{
 					currentIndex = 0;
 					StopRecording();
-					OnRecognitionResultCompleted(result.BestTranscription.FormattedString);
-					getRecognitionTaskCompletionSource.TrySetResult(result.BestTranscription.FormattedString);
+					OnRecognitionResultCompleted(SpeechToTextResult.Success(result.BestTranscription.FormattedString));
 				}
 				else
 				{
@@ -83,7 +86,6 @@ public sealed partial class SpeechToTextImplementation
 					{
 						var s = result.BestTranscription.Segments[i].Substring;
 						currentIndex++;
-						recognitionProgress?.Report(s);
 						OnRecognitionResultUpdated(s);
 					}
 				}

@@ -1,9 +1,10 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
+using Nito.AsyncEx;
 using Xunit;
 
 namespace CommunityToolkit.Maui.UnitTests.Behaviors;
 
-public class CharactersValidationBehaviorTests : BaseTest
+public class CharactersValidationBehaviorTests() : BaseBehaviorTest<CharactersValidationBehavior, VisualElement>(new CharactersValidationBehavior(), new View())
 {
 	[Theory]
 	[InlineData(CharacterType.Any, 1, 2, "A", true)]
@@ -49,7 +50,7 @@ public class CharactersValidationBehaviorTests : BaseTest
 		entry.Behaviors.Add(behavior);
 
 		// Act
-		await behavior.ForceValidate(CancellationToken.None);
+		await behavior.ForceValidate(TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.Equal(expectedValue, behavior.IsValid);
@@ -71,7 +72,7 @@ public class CharactersValidationBehaviorTests : BaseTest
 		// Act
 
 		// Ensure CancellationToken expires
-		await Task.Delay(100, CancellationToken.None);
+		await Task.Delay(100, TestContext.Current.CancellationToken);
 
 		// Assert
 		await Assert.ThrowsAsync<OperationCanceledException>(async () => await behavior.ForceValidate(cts.Token));
@@ -93,13 +94,35 @@ public class CharactersValidationBehaviorTests : BaseTest
 		// Act
 
 		// Ensure CancellationToken expires
-		await Task.Delay(100, CancellationToken.None);
+		await Task.Delay(100, TestContext.Current.CancellationToken);
 
 		// Assert
 		await Assert.ThrowsAsync<OperationCanceledException>(async () =>
 		{
 			await cts.CancelAsync();
 			await behavior.ForceValidate(cts.Token);
+		});
+	}
+
+	[Fact]
+	public void EnsureObjectDisposedExceptionThrownWhenDisposedBehaviorAttachedToVisualElement()
+	{
+		var behavior = new CharactersValidationBehavior();
+
+		Assert.Throws<ObjectDisposedException>(() =>
+		{
+			// Use AsyncContext to catch async void exception
+			AsyncContext.Run(() =>
+			{
+				behavior.Dispose();
+				var element = new VisualElement()
+				{
+					Behaviors =
+					{
+						behavior
+					}
+				};
+			});
 		});
 	}
 }

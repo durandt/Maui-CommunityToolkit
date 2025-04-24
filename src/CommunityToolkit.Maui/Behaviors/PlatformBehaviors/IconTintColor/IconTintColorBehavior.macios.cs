@@ -7,27 +7,15 @@ namespace CommunityToolkit.Maui.Behaviors;
 public partial class IconTintColorBehavior
 {
 	/// <inheritdoc/>
-	protected override void OnAttachedTo(View bindable, UIView platformView)
+	protected override void OnViewPropertyChanged(View sender, PropertyChangedEventArgs e)
 	{
-		ApplyTintColor(platformView, bindable, TintColor);
+		base.OnViewPropertyChanged(sender, e);
 
-		bindable.PropertyChanged += OnElementPropertyChanged;
-		this.PropertyChanged += (s, e) =>
-		{
-			if (e.PropertyName == TintColorProperty.PropertyName)
-			{
-				ApplyTintColor(platformView, bindable, TintColor);
-			}
-		};
-	}
-
-	void OnElementPropertyChanged(object? sender, PropertyChangedEventArgs e)
-	{
 		if ((e.PropertyName != ImageButton.IsLoadingProperty.PropertyName
 			&& e.PropertyName != Image.SourceProperty.PropertyName
 			&& e.PropertyName != ImageButton.SourceProperty.PropertyName)
 			|| sender is not IImageElement element
-			|| (sender as VisualElement)?.Handler?.PlatformView is not UIView platformView)
+			|| sender.Handler?.PlatformView is not UIView platformView)
 		{
 			return;
 		}
@@ -39,12 +27,31 @@ public partial class IconTintColorBehavior
 	}
 
 	/// <inheritdoc/>
-	protected override void OnDetachedFrom(View bindable, UIView platformView) =>
-		ClearTintColor(platformView, bindable);
-
-	void ClearTintColor(UIView platformView, View element)
+	protected override void OnAttachedTo(View bindable, UIView platformView)
 	{
-		element.PropertyChanged -= OnElementPropertyChanged;
+		base.OnAttachedTo(bindable, platformView);
+
+		ApplyTintColor(platformView, bindable, TintColor);
+
+		PropertyChanged += (s, e) =>
+		{
+			if (e.PropertyName == TintColorProperty.PropertyName)
+			{
+				ApplyTintColor(platformView, bindable, TintColor);
+			}
+		};
+	}
+
+	/// <inheritdoc/>
+	protected override void OnDetachedFrom(View bindable, UIView platformView)
+	{
+		base.OnDetachedFrom(bindable, platformView);
+
+		ClearTintColor(platformView, bindable);
+	}
+
+	static void ClearTintColor(UIView platformView, View element)
+	{
 		switch (platformView)
 		{
 			case UIImageView imageView:
@@ -55,7 +62,7 @@ public partial class IconTintColorBehavior
 
 				break;
 			case UIButton button:
-				if (button.ImageView?.Image is not null)
+				if (button.ImageView.Image is not null)
 				{
 					var originalImage = button.CurrentImage.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
 					button.SetImage(originalImage, UIControlState.Normal);
@@ -68,7 +75,7 @@ public partial class IconTintColorBehavior
 		}
 	}
 
-	void ApplyTintColor(UIView platformView, View element, Color? color)
+	static void ApplyTintColor(UIView platformView, View element, Color? color)
 	{
 		if (color is null)
 		{
@@ -91,7 +98,7 @@ public partial class IconTintColorBehavior
 
 	static void SetUIButtonTintColor(UIButton button, View element, Color color)
 	{
-		if (button.ImageView.Image is null)
+		if (button.ImageView.Image is null || button.CurrentImage is null)
 		{
 			return;
 		}
@@ -103,7 +110,6 @@ public partial class IconTintColorBehavior
 		button.TintColor = platformColor;
 		button.ImageView.TintColor = platformColor;
 		button.SetImage(templatedImage, UIControlState.Normal);
-
 	}
 
 	static void SetUIImageViewTintColor(UIImageView imageView, View element, Color color)
@@ -116,5 +122,4 @@ public partial class IconTintColorBehavior
 		imageView.Image = imageView.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate);
 		imageView.TintColor = color.ToPlatform();
 	}
-
 }

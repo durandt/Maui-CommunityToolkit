@@ -1,12 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Maui.Sample.Models;
 
-namespace CommunityToolkit.Maui.Sample.ViewModels.Views.AvatarView;
+namespace CommunityToolkit.Maui.Sample.ViewModels.Views;
 
-public class AvatarViewBindablePropertiesViewModel : BaseViewModel
+public partial class AvatarViewBindablePropertiesViewModel : BaseViewModel
 {
-	public ObservableCollection<AvatarModel> AvatarList { get; } = new()
-	{
+	public ObservableCollection<AvatarModel> AvatarList { get; } =
+	[
 		new AvatarModel
 		{
 			Description = "Sam Worthington",
@@ -88,5 +88,5 @@ public class AvatarViewBindablePropertiesViewModel : BaseViewModel
 			WidthRequest = 128,
 			HeightRequest = 72,
 		},
-	};
+	];
 }

@@ -8,7 +8,7 @@ namespace CommunityToolkit.Maui.ApplicationModel;
 /// </summary>
 public static class BadgeFactory
 {
-	static readonly Dictionary<string, IBadgeProvider> providers = new();
+	static readonly Dictionary<string, IBadgeProvider> providers = [];
 	static readonly DefaultBadgeProvider defaultBadgeProvider = new();
 
 	/// <summary>
@@ -45,11 +45,6 @@ public static class BadgeFactory
 			Application.Context.PackageManager?.ResolveActivity(intent, PackageManager.ResolveInfoFlags.Of(0)) :
 			Application.Context.PackageManager?.ResolveActivity(intent, PackageInfoFlags.MatchDefaultOnly);
 
-		if (resolveInfo is { ActivityInfo.PackageName: not null })
-		{
-			return resolveInfo.ActivityInfo.PackageName;
-		}
-
-		return Application.Context.PackageName;
+		return resolveInfo is { ActivityInfo.PackageName: not null } ? resolveInfo.ActivityInfo.PackageName : Application.Context.PackageName;
 	}
 }

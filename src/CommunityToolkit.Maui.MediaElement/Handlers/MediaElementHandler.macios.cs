@@ -1,12 +1,14 @@
-﻿using CommunityToolkit.Maui.Core.Views;
+﻿using AVKit;
+using CommunityToolkit.Maui.Core.Views;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Handlers;
-using Microsoft.Maui.Platform;
 
 namespace CommunityToolkit.Maui.Core.Handlers;
 
 public partial class MediaElementHandler : ViewHandler<MediaElement, MauiMediaElement>, IDisposable
 {
+	AVPlayerViewController? playerViewController;
+
 	/// <inheritdoc/>
 	/// <exception cref="NullReferenceException">Thrown if <see cref="MauiContext"/> is <see langword="null"/>.</exception>
 	protected override MauiMediaElement CreatePlatformView()
@@ -17,31 +19,12 @@ public partial class MediaElementHandler : ViewHandler<MediaElement, MauiMediaEl
 		}
 
 		mediaManager ??= new(MauiContext,
-								VirtualView,
-								Dispatcher.GetForCurrentThread() ?? throw new InvalidOperationException($"{nameof(IDispatcher)} cannot be null"));
+			VirtualView,
+			Dispatcher.GetForCurrentThread() ?? throw new InvalidOperationException($"{nameof(IDispatcher)} cannot be null"));
 
-		// Retrieve the parenting page so we can provide that to the platform control
-		var parent = VirtualView.Parent;
-		while (parent is not null)
-		{
-			if (parent is Page)
-			{
-				break;
-			}
+		(_, playerViewController) = mediaManager.CreatePlatformView();
 
-			parent = parent.Parent;
-		}
-
-		var parentPage = (parent as Page)?.ToHandler(MauiContext);
-
-		var (_, playerViewController) = mediaManager.CreatePlatformView();
-		return new(playerViewController, parentPage?.ViewController);
-	}
-
-	/// <inheritdoc/>
-	protected override void ConnectHandler(MauiMediaElement platformView)
-	{
-		base.ConnectHandler(platformView);
+		return new(playerViewController, VirtualView);
 	}
 
 	/// <inheritdoc/>
@@ -49,6 +32,13 @@ public partial class MediaElementHandler : ViewHandler<MediaElement, MauiMediaEl
 	{
 		platformView.Dispose();
 		Dispose();
+
 		base.DisconnectHandler(platformView);
+	}
+
+	partial void PlatformDispose()
+	{
+		playerViewController?.Dispose();
+		playerViewController = null;
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Maui.Core;
-using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Platform;
 
 namespace CommunityToolkit.Maui.Views;
@@ -11,8 +10,12 @@ public static partial class PopupExtensions
 {
 	static void PlatformShowPopup(Popup popup, IMauiContext mauiContext)
 	{
-		var window = mauiContext.GetPlatformWindow().GetWindow() ?? throw new NullReferenceException("Window is null.");
-		popup.Parent = ((Page)window.Content).GetCurrentPage();
+		if (mauiContext.GetPlatformWindow().GetWindow()?.Content is not Page parent)
+		{
+			throw new InvalidOperationException("Window Content cannot be null");
+		}
+
+		parent.AddLogicalChild(popup);
 
 		var platform = popup.ToHandler(mauiContext);
 		platform?.Invoke(nameof(IPopup.OnOpened));

@@ -48,12 +48,7 @@ sealed class StateContainerController
 		// Put the original content somewhere where we can restore it.
 		if (previousState is null)
 		{
-			originalContent = new List<IView>();
-
-			foreach (var item in layout.Children)
-			{
-				originalContent.Add(item);
-			}
+			originalContent = [.. layout.Children];
 		}
 
 		previousState = state;
@@ -61,7 +56,7 @@ sealed class StateContainerController
 
 		// If the layout we're applying StateContainer to is a Grid,
 		// we want to have the StateContainer span the entire Grid surface.
-		// Otherwise it would just end up in row 0 : column 0.
+		// Otherwise, it would just end up in row 0 : column 0.
 		if (layout is IGridLayout grid)
 		{
 			if (grid.RowDefinitions.Count > 0)

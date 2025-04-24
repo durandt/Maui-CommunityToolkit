@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui.Core.Views;
 using Microsoft.Maui.Handlers;
+using Microsoft.Maui.Platform;
 using AView = Android.Views.View;
 
 namespace CommunityToolkit.Maui.Core.Handlers;
@@ -7,6 +8,10 @@ namespace CommunityToolkit.Maui.Core.Handlers;
 public partial class PopupHandler : ElementHandler<IPopup, MauiPopup>
 {
 	internal AView? Container { get; set; }
+	internal int LastPopupWidth { get; set; }
+	internal int LastPopupHeight { get; set; }
+	internal double LastWindowWidth { get; set; }
+	internal double LastWindowHeight { get; set; }
 
 	/// <summary>
 	/// Action that's triggered when the Popup is closed
@@ -18,9 +23,12 @@ public partial class PopupHandler : ElementHandler<IPopup, MauiPopup>
 	{
 		var popup = handler.PlatformView;
 
-		if (popup.IsShowing)
+		if (!popup.Context.GetActivity().IsDestroyed())
 		{
-			popup.Dismiss();
+			if (popup.IsShowing)
+			{
+				popup.Dismiss();
+			}
 		}
 
 		view.HandlerCompleteTCS.TrySetResult();
@@ -92,8 +100,7 @@ public partial class PopupHandler : ElementHandler<IPopup, MauiPopup>
 	{
 		ArgumentNullException.ThrowIfNull(handler.Container);
 
-		handler.PlatformView.SetSize(view, handler.Container);
-		handler.PlatformView.SetAnchor(view);
+		handler.PlatformView.SetSize(view, handler.Container, handler);
 	}
 
 	/// <inheritdoc/>
@@ -138,7 +145,7 @@ public partial class PopupHandler : ElementHandler<IPopup, MauiPopup>
 	{
 		if (VirtualView?.Handler?.PlatformView is Dialog dialog && Container is not null)
 		{
-			PopupExtensions.SetSize(dialog, VirtualView, Container);
+			PopupExtensions.SetSize(dialog, VirtualView, Container, this);
 		}
 	}
 }

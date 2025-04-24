@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace CommunityToolkit.Maui.Core.Views;
 
 /// <summary>
@@ -32,8 +30,8 @@ public class PlatformSnackbar : PlatformToast
 		string actionButtonText,
 		UIColor actionTextColor,
 		UIFont actionButtonFont,
-		NFloat padding)
-		: base(message, backgroundColor, cornerRadius, textColor, textFont, characterSpacing, padding)
+		nfloat padding)
+		: base(message, backgroundColor, cornerRadius, textColor, textFont, characterSpacing, padding, true)
 	{
 		padding += DefaultPadding;
 

@@ -6,9 +6,9 @@ using CommunityToolkit.Maui.Core.Primitives;
 namespace CommunityToolkit.Maui.Views;
 
 /// <summary>
-/// Represents an object that is used to render audio and video to the display.
+/// Represents an object used to render audio and video to the display.
 /// </summary>
-public class MediaElement : View, IMediaElement, IDisposable
+public partial class MediaElement : View, IMediaElement, IDisposable
 {
 	/// <summary>
 	/// Backing store for the <see cref="Aspect"/> property.
@@ -16,15 +16,15 @@ public class MediaElement : View, IMediaElement, IDisposable
 	public static readonly BindableProperty AspectProperty =
 		BindableProperty.Create(nameof(Aspect), typeof(Aspect), typeof(MediaElement), Aspect.AspectFit);
 
-	static readonly BindablePropertyKey durationPropertyKey =
-		BindableProperty.CreateReadOnly(nameof(Duration), typeof(TimeSpan), typeof(MediaElement), TimeSpan.Zero);
-
 	/// <summary>
 	/// Backing store for the <see cref="CurrentState"/> property.
 	/// </summary>
 	public static readonly BindableProperty CurrentStateProperty =
 		BindableProperty.Create(nameof(CurrentState), typeof(MediaElementState), typeof(MediaElement),
 			MediaElementState.None, propertyChanged: OnCurrentStatePropertyChanged);
+
+	static readonly BindablePropertyKey durationPropertyKey =
+		BindableProperty.CreateReadOnly(nameof(Duration), typeof(TimeSpan), typeof(MediaElement), TimeSpan.Zero);
 
 	/// <summary>
 	/// Backing store for the <see cref="Duration"/> property.
@@ -80,17 +80,23 @@ public class MediaElement : View, IMediaElement, IDisposable
 	public static readonly BindableProperty SpeedProperty =
 		BindableProperty.Create(nameof(Speed), typeof(double), typeof(MediaElement), 1.0);
 
+	static readonly BindablePropertyKey mediaHeightPropertyKey =
+		BindableProperty.CreateReadOnly(nameof(MediaHeight), typeof(int), typeof(MediaElement), 0);
+
 	/// <summary>
 	/// Backing store for the <see cref="MediaHeight"/> property.
 	/// </summary>
 	public static readonly BindableProperty MediaHeightProperty =
-		BindableProperty.Create(nameof(MediaHeight), typeof(int), typeof(MediaElement));
+		mediaHeightPropertyKey.BindableProperty;
+
+	static readonly BindablePropertyKey mediaWidthPropertyKey =
+		BindableProperty.CreateReadOnly(nameof(MediaWidth), typeof(int), typeof(MediaElement), 0);
 
 	/// <summary>
 	/// Backing store for the <see cref="MediaWidth"/> property.
 	/// </summary>
 	public static readonly BindableProperty MediaWidthProperty =
-		BindableProperty.Create(nameof(MediaWidth), typeof(int), typeof(MediaElement));
+		mediaWidthPropertyKey.BindableProperty;
 
 	/// <summary>
 	/// Backing store for the <see cref="Volume"/> property.
@@ -98,6 +104,21 @@ public class MediaElement : View, IMediaElement, IDisposable
 	public static readonly BindableProperty VolumeProperty =
 		BindableProperty.Create(nameof(Volume), typeof(double), typeof(MediaElement), 1.0,
 			BindingMode.TwoWay, propertyChanging: ValidateVolume);
+
+	/// <summary>
+	/// Backing store for the <see cref="MetadataTitle"/> property.
+	/// </summary>
+	public static readonly BindableProperty MetadataTitleProperty = BindableProperty.Create(nameof(MetadataTitle), typeof(string), typeof(MediaElement), string.Empty);
+
+	/// <summary>
+	/// Backing store for the <see cref="MetadataArtist"/> property.
+	/// </summary>
+	public static readonly BindableProperty MetadataArtistProperty = BindableProperty.Create(nameof(MetadataArtist), typeof(string), typeof(MediaElement), string.Empty);
+
+	/// <summary>
+	/// Backing store for the <see cref="MetadataArtworkUrl"/> property.
+	/// </summary>
+	public static readonly BindableProperty MetadataArtworkUrlProperty = BindableProperty.Create(nameof(MetadataArtworkUrl), typeof(string), typeof(MediaElement), string.Empty);
 
 	readonly WeakEventManager eventManager = new();
 	readonly SemaphoreSlim seekToSemaphoreSlim = new(1, 1);
@@ -211,7 +232,7 @@ public class MediaElement : View, IMediaElement, IDisposable
 	}
 
 	/// <summary>
-	/// Gets or sets if the video will play when reaches the end.
+	/// Gets or sets if the video plays when reaches the end.
 	/// Default is <see langword="false"/>. This is a bindable property.
 	/// </summary>
 	public bool ShouldLoopPlayback
@@ -221,7 +242,7 @@ public class MediaElement : View, IMediaElement, IDisposable
 	}
 
 	/// <summary>
-	/// Gets or sets if media playback will prevent the device display from going to sleep.
+	/// Gets or sets if media playback prevents the device display from going to sleep.
 	/// This is a bindable property.
 	/// </summary>
 	/// <remarks>If media is paused, stopped or has completed playing, the display will turn off.</remarks>
@@ -270,7 +291,7 @@ public class MediaElement : View, IMediaElement, IDisposable
 	/// Gets or sets the volume of the audio for the media.
 	/// </summary>
 	/// <remarks>
-	/// <para>A value of 1 means full volume, 0 is silence.</para>
+	/// <para>A value of 1 indicates full-volume, 0 is silence.</para>
 	/// <para>When <see cref="ShouldMute"/> is <see langword="true" />, changes to <see cref="Volume"/> are ignored.
 	/// The new volume will be applied when <see cref="ShouldMute"/> is set to <see langword="false" /> again.
 	/// When the user uses the platform player controls to influence the volume, it might still unmute.</para>
@@ -278,7 +299,20 @@ public class MediaElement : View, IMediaElement, IDisposable
 	public double Volume
 	{
 		get => (double)GetValue(VolumeProperty);
-		set => SetValue(VolumeProperty, value);
+		set
+		{
+			switch (value)
+			{
+				case > 1:
+					throw new ArgumentOutOfRangeException(nameof(value), value, $"The value of {nameof(Volume)} cannot be greater than {1}");
+				case < 0:
+					throw new ArgumentOutOfRangeException(nameof(value), value, $"The value of {nameof(Volume)} cannot be less than {0}");
+				default:
+					SetValue(VolumeProperty, value);
+					break;
+			}
+
+		}
 	}
 
 	/// <summary>
@@ -297,22 +331,44 @@ public class MediaElement : View, IMediaElement, IDisposable
 	/// Gets the height (in pixels) of the loaded media in pixels.
 	/// This is a bindable property.
 	/// </summary>
-	/// <remarks>Not reported for non-visual media.</remarks>
-	public int MediaHeight
-	{
-		get => (int)GetValue(MediaHeightProperty);
-		internal set => SetValue(MediaHeightProperty, value);
-	}
+	/// <remarks>Not reported for non-visual media, sometimes not available for live-streamed content on iOS and macOS.</remarks>
+	public int MediaHeight => (int)GetValue(MediaHeightProperty);
 
 	/// <summary>
 	/// Gets the width (in pixels) of the loaded media in pixels.
 	/// This is a bindable property.
 	/// </summary>
-	/// <remarks>Not reported for non-visual media.</remarks>
-	public int MediaWidth
+	/// <remarks>Not reported for non-visual media, sometimes not available for live-streamed content on iOS and macOS.</remarks>
+	public int MediaWidth => (int)GetValue(MediaWidthProperty);
+
+	/// <summary>
+	/// Gets or sets the Title of the media.
+	/// This is a bindable property.
+	/// </summary>
+	public string MetadataTitle
 	{
-		get => (int)GetValue(MediaWidthProperty);
-		internal set => SetValue(MediaWidthProperty, value);
+		get => (string)GetValue(MetadataTitleProperty);
+		set => SetValue(MetadataTitleProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the Artist of the media.
+	/// This is a bindable property.
+	/// </summary>
+	public string MetadataArtist
+	{
+		get => (string)GetValue(MetadataArtistProperty);
+		set => SetValue(MetadataArtistProperty, value);
+	}
+
+	/// <summary>
+	/// Gets or sets the Artwork Image Url of the media.
+	/// This is a bindable property.
+	/// </summary>
+	public string MetadataArtworkUrl
+	{
+		get => (string)GetValue(MetadataArtworkUrlProperty);
+		set => SetValue(MetadataArtworkUrlProperty, value);
 	}
 
 	/// <summary>
@@ -353,6 +409,18 @@ public class MediaElement : View, IMediaElement, IDisposable
 	{
 		get => (TimeSpan)GetValue(DurationProperty);
 		set => SetValue(durationPropertyKey, value);
+	}
+
+	int IMediaElement.MediaWidth
+	{
+		get => (int)GetValue(MediaWidthProperty);
+		set => SetValue(mediaWidthPropertyKey, value);
+	}
+
+	int IMediaElement.MediaHeight
+	{
+		get => (int)GetValue(MediaHeightProperty);
+		set => SetValue(mediaHeightPropertyKey, value);
 	}
 
 	/// <inheritdoc/>
@@ -446,6 +514,7 @@ public class MediaElement : View, IMediaElement, IDisposable
 
 		if (disposing)
 		{
+			ClearTimer();
 			seekToSemaphoreSlim.Dispose();
 		}
 
@@ -460,11 +529,11 @@ public class MediaElement : View, IMediaElement, IDisposable
 
 	static void OnCurrentStatePropertyChanged(BindableObject bindable, object oldValue, object newValue)
 	{
-		var MediaElement = (MediaElement)bindable;
+		var mediaElement = (MediaElement)bindable;
 		var previousState = (MediaElementState)oldValue;
 		var newState = (MediaElementState)newValue;
 
-		MediaElement.OnStateChanged(new MediaStateChangedEventArgs(previousState, newState));
+		mediaElement.OnStateChanged(new MediaStateChangedEventArgs(previousState, newState));
 	}
 
 	static void ValidateVolume(BindableObject bindable, object oldValue, object newValue)

@@ -8,14 +8,22 @@ public partial class Snackbar : ISnackbar
 	static readonly WeakEventManager weakEventManager = new();
 
 	bool isDisposed;
-	readonly string text = string.Empty;
-	readonly string actionButtonText = AlertDefaults.ActionButtonText;
 
 	/// <summary>
 	/// Initializes a new instance of <see cref="Snackbar"/>
 	/// </summary>
 	public Snackbar()
 	{
+#if WINDOWS
+		if (!Options.ShouldEnableSnackbarOnWindows)
+		{
+			throw new InvalidOperationException($"Additional setup is required in the Package.appxmanifest file to enable {nameof(Snackbar)} on Windows. Additonally, `{nameof(AppBuilderExtensions.UseMauiCommunityToolkit)}(options => options.{nameof(Options.SetShouldEnableSnackbarOnWindows)}({bool.TrueString.ToLower()});` must be called to enable Snackbar on Windows. See the Platform Specific Initialization section of the {nameof(Snackbar)} documentaion for more information: https://learn.microsoft.com/dotnet/communitytoolkit/maui/alerts/snackbar")
+			{
+				HelpLink = "https://learn.microsoft.com/dotnet/communitytoolkit/maui/alerts/snackbar"
+			};
+		}
+#endif
+
 		Duration = GetDefaultTimeSpan();
 		VisualOptions = new SnackbarOptions();
 	}
@@ -28,16 +36,16 @@ public partial class Snackbar : ISnackbar
 	/// <inheritdoc/>
 	public string Text
 	{
-		get => text;
-		init => text = value ?? throw new ArgumentNullException(nameof(value));
-	}
+		get;
+		init => field = value ?? throw new ArgumentNullException(nameof(value));
+	} = string.Empty;
 
 	/// <inheritdoc/>
 	public string ActionButtonText
 	{
-		get => actionButtonText;
-		init => actionButtonText = value ?? throw new ArgumentNullException(nameof(value));
-	}
+		get;
+		init => field = value ?? throw new ArgumentNullException(nameof(value));
+	} = AlertDefaults.ActionButtonText;
 
 	/// <inheritdoc/>
 	public SnackbarOptions VisualOptions { get; init; }

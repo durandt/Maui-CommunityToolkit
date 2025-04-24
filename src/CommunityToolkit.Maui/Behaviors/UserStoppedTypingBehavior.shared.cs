@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace CommunityToolkit.Maui.Behaviors;
@@ -6,7 +7,7 @@ namespace CommunityToolkit.Maui.Behaviors;
 /// <summary>
 /// The <see cref="UserStoppedTypingBehavior"/> is a behavior that allows the user to trigger an action when a user has stopped data input any <see cref="InputView"/> derivate like <see cref="Entry"/> or <see cref="SearchBar"/>. Examples of its usage include triggering a search when a user has stopped entering their search query.
 /// </summary>
-public class UserStoppedTypingBehavior : BaseBehavior<InputView>, IDisposable
+public partial class UserStoppedTypingBehavior : BaseBehavior<InputView>, IDisposable
 {
 	/// <summary>
 	/// Backing BindableProperty for the <see cref="Command"/> property.
@@ -97,13 +98,13 @@ public class UserStoppedTypingBehavior : BaseBehavior<InputView>, IDisposable
 	}
 
 	/// <inheritdoc/>
-	protected override void OnViewPropertyChanged(InputView sender, PropertyChangedEventArgs e)
+	protected override async void OnViewPropertyChanged(InputView sender, PropertyChangedEventArgs e)
 	{
 		base.OnViewPropertyChanged(sender, e);
 
 		if (e.PropertyName == InputView.TextProperty.PropertyName)
 		{
-			OnTextPropertyChanged();
+			await OnTextPropertyChanged(sender, sender.Text);
 		}
 	}
 
@@ -121,38 +122,38 @@ public class UserStoppedTypingBehavior : BaseBehavior<InputView>, IDisposable
 		}
 	}
 
-	void OnTextPropertyChanged()
+	async Task OnTextPropertyChanged(InputView view, string? text)
 	{
-		if (tokenSource != null)
+		if (tokenSource is not null)
 		{
-			tokenSource.Cancel();
+			await tokenSource.CancelAsync();
 			tokenSource.Dispose();
 		}
+
 		tokenSource = new CancellationTokenSource();
 
-		Task.Delay(StoppedTypingTimeThreshold, tokenSource.Token)
-			.ContinueWith(task =>
-			{
-				if (task.IsFaulted && task.Exception != null)
-				{
-					throw task.Exception;
-				}
+		if (text is null || text.Length < MinimumLengthThreshold)
+		{
+			return;
+		}
 
-				if (task.Status == TaskStatus.Canceled ||
-					View?.Text?.Length < MinimumLengthThreshold)
-				{
-					return;
-				}
+		var task = Task.Delay(StoppedTypingTimeThreshold, tokenSource.Token);
+		await task.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing | ConfigureAwaitOptions.ContinueOnCapturedContext);
 
-				if (View != null && ShouldDismissKeyboardAutomatically)
-				{
-					Dispatcher.DispatchIfRequired(View.Unfocus);
-				}
+		if (task.Status is TaskStatus.Canceled)
+		{
+			Trace.WriteLine($"{nameof(UserStoppedTypingBehavior)}.{nameof(OnTextPropertyChanged)} cancelled");
+			return;
+		}
 
-				if (View != null && Command?.CanExecute(CommandParameter ?? View.Text) is true)
-				{
-					Command.Execute(CommandParameter ?? View.Text);
-				}
-			});
+		if (ShouldDismissKeyboardAutomatically)
+		{
+			Dispatcher.DispatchIfRequired(view.Unfocus);
+		}
+
+		if (Command?.CanExecute(CommandParameter ?? text) is true)
+		{
+			await Dispatcher.DispatchIfRequiredAsync(() => Command.Execute(CommandParameter ?? text));
+		}
 	}
 }

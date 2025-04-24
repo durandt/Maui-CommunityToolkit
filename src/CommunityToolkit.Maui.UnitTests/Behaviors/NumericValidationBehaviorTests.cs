@@ -5,7 +5,7 @@ using Xunit;
 
 namespace CommunityToolkit.Maui.UnitTests.Behaviors;
 
-public class NumericValidationBehaviorTests : BaseTest
+public class NumericValidationBehaviorTests() : BaseBehaviorTest<NumericValidationBehavior, VisualElement>(new NumericValidationBehavior(), new View())
 {
 	[Theory]
 	[InlineData("en-US", "15.2", 1.0, 16.0, 0, 16, true)]
@@ -61,7 +61,7 @@ public class NumericValidationBehaviorTests : BaseTest
 		try
 		{
 			// Act
-			await behavior.ForceValidate(CancellationToken.None);
+			await behavior.ForceValidate(TestContext.Current.CancellationToken);
 
 			// Assert
 			Assert.Equal(expectedValue, behavior.IsValid);
@@ -86,7 +86,7 @@ public class NumericValidationBehaviorTests : BaseTest
 		};
 		entry.Behaviors.Add(behavior);
 
-		await Assert.ThrowsAsync<ArgumentNullException>(async () => await behavior.ForceValidate(CancellationToken.None));
+		await Assert.ThrowsAsync<ArgumentNullException>(async () => await behavior.ForceValidate(TestContext.Current.CancellationToken));
 	}
 
 	[Fact(Timeout = (int)TestDuration.Short)]
@@ -106,7 +106,7 @@ public class NumericValidationBehaviorTests : BaseTest
 		};
 		entry.Behaviors.Add(behavior);
 
-		var action = (async () => await behavior.ForceValidate(CancellationToken.None));
+		var action = (async () => await behavior.ForceValidate(TestContext.Current.CancellationToken));
 		await action.Should().NotThrowAsync<ArgumentNullException>();
 
 		options.SetShouldSuppressExceptionsInBehaviors(false);
@@ -128,7 +128,7 @@ public class NumericValidationBehaviorTests : BaseTest
 		// Act
 
 		// Ensure CancellationToken expires
-		await Task.Delay(100, CancellationToken.None);
+		await Task.Delay(100, TestContext.Current.CancellationToken);
 
 		// Assert
 		await Assert.ThrowsAsync<OperationCanceledException>(async () => await behavior.ForceValidate(cts.Token));
@@ -150,7 +150,7 @@ public class NumericValidationBehaviorTests : BaseTest
 		// Act
 
 		// Ensure CancellationToken expires
-		await Task.Delay(100, CancellationToken.None);
+		await Task.Delay(100, TestContext.Current.CancellationToken);
 
 		// Assert
 		await Assert.ThrowsAsync<OperationCanceledException>(async () =>

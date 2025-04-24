@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui.ImageSources;
+using CommunityToolkit.Maui.ImageSources;
 using FluentAssertions;
 using Xunit;
 
@@ -66,7 +66,7 @@ public class GravatarImageSourceTests : BaseHandlerTest
 	{
 		Image testControl = new()
 		{
-			Source = new GravatarImageSource()
+			Source = new GravatarImageSource
 			{
 				Email = email,
 			}

@@ -1,15 +1,10 @@
 ﻿using System.Collections.Immutable;
 using System.Composition;
-using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices.ComTypes;
-using CommunityToolkit.Maui.Analyzers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Rename;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CommunityToolkit.Maui.Analyzers;
@@ -17,7 +12,7 @@ namespace CommunityToolkit.Maui.Analyzers;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseCommunityToolkitInitializationAnalyzerCodeFixProvider)), Shared]
 public class UseCommunityToolkitInitializationAnalyzerCodeFixProvider : CodeFixProvider
 {
-	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(UseCommunityToolkitInitializationAnalyzer.DiagnosticId);
+	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = [UseCommunityToolkitInitializationAnalyzer.DiagnosticId];
 
 	public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

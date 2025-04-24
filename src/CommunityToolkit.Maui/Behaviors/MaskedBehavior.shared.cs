@@ -1,13 +1,12 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 namespace CommunityToolkit.Maui.Behaviors;
 
 /// <summary>
 /// The MaskedBehavior is a behavior that allows the user to define an input mask for data entry. Adding this behavior to an <see cref="InputView"/> (i.e. <see cref="Entry"/>) control will force the user to only input values matching a given mask. Examples of its usage include input of a credit card number or a phone number.
 /// </summary>
-public class MaskedBehavior : BaseBehavior<InputView>, IDisposable
+public partial class MaskedBehavior : BaseBehavior<InputView>, IDisposable
 {
 	/// <summary>
 	/// BindableProperty for the <see cref="Mask"/> property.
@@ -102,7 +101,13 @@ public class MaskedBehavior : BaseBehavior<InputView>, IDisposable
 		await maskedBehavior.OnMaskChanged(maskedBehavior.Mask, CancellationToken.None).ConfigureAwait(false);
 	}
 
-	Task OnTextPropertyChanged(CancellationToken token) => ApplyMask(View?.Text, token);
+	Task OnTextPropertyChanged(CancellationToken token)
+	{
+		// Android does not play well when we update the Text inside the TextChanged event. 
+		// Therefore if we dispatch the mechanism of updating the Text property it solves the issue of the caret position being updated incorrectly.
+		// https://github.com/CommunityToolkit/Maui/issues/460
+		return View?.Dispatcher.DispatchAsync(() => ApplyMask(View?.Text, token)) ?? Task.CompletedTask;
+	}
 
 	void SetMaskPositions(in string? mask)
 	{

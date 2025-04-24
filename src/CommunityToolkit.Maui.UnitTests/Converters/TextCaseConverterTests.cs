@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using CommunityToolkit.Maui.Converters;
 using Xunit;
@@ -11,23 +10,51 @@ public class TextCaseConverterTests : BaseOneWayConverterTest<TextCaseConverter>
 	const string test = nameof(test);
 	const string t = nameof(t);
 
-	public static FrozenSet<object?[]> Data { get; } = new[]
+	public static TheoryData<object?, TextCaseType?, object?> Data { get; } = new()
 	{
-		new object?[] { test, TextCaseType.Lower, test },
-		new object?[] { test, TextCaseType.Upper, "TEST" },
-		new object?[] { test, TextCaseType.None, test },
-		new object?[] { test, TextCaseType.FirstUpperRestLower, "Test" },
-		new object?[] { t, TextCaseType.Upper, "T" },
-		new object?[] { t, TextCaseType.Lower, t },
-		new object?[] { t, TextCaseType.None, t },
-		new object?[] { t, TextCaseType.FirstUpperRestLower, "T" },
-		new object?[] { string.Empty, TextCaseType.FirstUpperRestLower, string.Empty },
-		new object?[] { null, TextCaseType.None, null },
-		new object?[] { MockEnum.Foo, TextCaseType.Lower, "foo" },
-		new object?[] { MockEnum.Bar, TextCaseType.None, "Bar" },
-		new object?[] { MockEnum.Baz, TextCaseType.Upper, "BAZ" },
-		new object?[] { new MockItem("Test Item", true), TextCaseType.Upper, "TEST ITEM IS COMPLETED" },
-	}.ToFrozenSet();
+		{
+			test, TextCaseType.Lower, test
+		},
+		{
+			test, TextCaseType.Upper, "TEST"
+		},
+		{
+			test, TextCaseType.None, test
+		},
+		{
+			test, TextCaseType.FirstUpperRestLower, "Test"
+		},
+		{
+			t, TextCaseType.Upper, "T"
+		},
+		{
+			t, TextCaseType.Lower, t
+		},
+		{
+			t, TextCaseType.None, t
+		},
+		{
+			t, TextCaseType.FirstUpperRestLower, "T"
+		},
+		{
+			string.Empty, TextCaseType.FirstUpperRestLower, string.Empty
+		},
+		{
+			null, TextCaseType.None, null
+		},
+		{
+			MockEnum.Foo, TextCaseType.Lower, "foo"
+		},
+		{
+			MockEnum.Bar, TextCaseType.None, "Bar"
+		},
+		{
+			MockEnum.Baz, TextCaseType.Upper, "BAZ"
+		},
+		{
+			new MockItem("Test Item", true), TextCaseType.Upper, "TEST ITEM IS COMPLETED"
+		},
+	};
 
 	enum MockEnum { Foo, Bar, Baz }
 
@@ -40,7 +67,10 @@ public class TextCaseConverterTests : BaseOneWayConverterTest<TextCaseConverter>
 	{
 		var textCaseConverter = new TextCaseConverter();
 
-		Assert.Throws<InvalidEnumArgumentException>(() => new TextCaseConverter { Type = textCaseType });
+		Assert.Throws<InvalidEnumArgumentException>(() => new TextCaseConverter
+		{
+			Type = textCaseType
+		});
 		Assert.Throws<InvalidEnumArgumentException>(() => textCaseConverter.Type = textCaseType);
 		Assert.Throws<InvalidEnumArgumentException>(() => ((ICommunityToolkitValueConverter)textCaseConverter).Convert("Hello World", typeof(string), textCaseType, null));
 		Assert.Throws<InvalidEnumArgumentException>(() => textCaseConverter.ConvertFrom("Hello World", textCaseType));
@@ -71,11 +101,13 @@ public class TextCaseConverterTests : BaseOneWayConverterTest<TextCaseConverter>
 
 	[Theory]
 	[MemberData(nameof(Data))]
-	public void TextCaseConverterWithExplicitType(object? value, TextCaseType textCaseType, object? expectedResult)
+	public void TextCaseConverterWithExplicitType(object? value, TextCaseType? textCaseType, object? expectedResult)
 	{
+		ArgumentNullException.ThrowIfNull(textCaseType);
+
 		var textCaseConverter = new TextCaseConverter
 		{
-			Type = textCaseType
+			Type = textCaseType.Value
 		};
 
 		var convertResult = ((ICommunityToolkitValueConverter)textCaseConverter).Convert(value?.ToString(), typeof(string), null, CultureInfo.CurrentCulture);

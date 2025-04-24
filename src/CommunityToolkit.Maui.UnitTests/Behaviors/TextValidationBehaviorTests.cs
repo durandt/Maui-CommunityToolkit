@@ -4,7 +4,7 @@ using Xunit;
 
 namespace CommunityToolkit.Maui.UnitTests.Behaviors;
 
-public class TextValidationBehaviorTests : BaseTest
+public class TextValidationBehaviorTests() : BaseBehaviorTest<TextValidationBehavior, VisualElement>(new CharactersValidationBehavior(), new View())
 {
 	[Theory]
 	[InlineData("mi.....ft", RegexOptions.IgnoreCase, 5, 25, TextDecorationFlags.None, "Microsoft", true)]
@@ -31,7 +31,7 @@ public class TextValidationBehaviorTests : BaseTest
 		entry.Behaviors.Add(behavior);
 
 		// Act
-		await behavior.ForceValidate(CancellationToken.None);
+		await behavior.ForceValidate(TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.Equal(expectedValue, behavior.IsValid);
@@ -53,7 +53,7 @@ public class TextValidationBehaviorTests : BaseTest
 		// Act
 
 		// Ensure CancellationToken expires
-		await Task.Delay(100, CancellationToken.None);
+		await Task.Delay(100, TestContext.Current.CancellationToken);
 
 		// Assert
 		await Assert.ThrowsAsync<OperationCanceledException>(async () => await behavior.ForceValidate(cts.Token));
@@ -75,7 +75,7 @@ public class TextValidationBehaviorTests : BaseTest
 		// Act
 
 		// Ensure CancellationToken expires
-		await Task.Delay(100, CancellationToken.None);
+		await Task.Delay(100, TestContext.Current.CancellationToken);
 
 		// Assert
 		await Assert.ThrowsAsync<OperationCanceledException>(async () =>
