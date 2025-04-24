@@ -69,22 +69,22 @@ public partial class MultipleSizesBottomSheet : BottomSheet
 		}
 	}
 
-	async void CloseButton_Clicked(object? sender, EventArgs e)
+	void CloseButton_Clicked(object? sender, EventArgs e)
 	{
 		Close();
 	}
 
-	async void ToggleCanBeDismissedByTappingOutsideOfBottomSheetButton_Clicked(object? sender, EventArgs e)
+	void ToggleCanBeDismissedByTappingOutsideOfBottomSheetButton_Clicked(object? sender, EventArgs e)
 	{
 		CanBeDismissedByTappingOutsideOfBottomSheet = !CanBeDismissedByTappingOutsideOfBottomSheet;
 	}
 
-	async void ToggleSwipeWillDismissBottomSheetButton_Clicked(object? sender, EventArgs e)
+	void ToggleSwipeWillDismissBottomSheetButton_Clicked(object? sender, EventArgs e)
 	{
 		SwipeWillDismissBottomSheet = !SwipeWillDismissBottomSheet;
 	}
 
-	async void ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked(object? sender, EventArgs e)
+	void ToggleAllowUserInteractionToSwitchBottomSheetSizeButton_Clicked(object? sender, EventArgs e)
 	{
 		AllowUserInteractionToSwitchBottomSheetSize = !AllowUserInteractionToSwitchBottomSheetSize;
 	}
