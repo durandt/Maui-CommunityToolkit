@@ -223,7 +223,11 @@ public class MauiBottomSheet : UIViewController
 				VirtualView.OnAppeared();
 			});
 		}
-		// TODO(thidu06): If not animated, set view bounds so that it will appear
+		else
+		{
+			_ = VirtualView ?? throw new InvalidOperationException($"{nameof(VirtualView)} cannot be null.");
+			ShowBottomSheetNotAnimated(VirtualView.BottomSheetSize);
+		}
 	}
 
 	internal void SetBottomSheetSize(BottomSheetSize size)
@@ -315,6 +319,21 @@ public class MauiBottomSheet : UIViewController
 			popoverBackgroundAnimator.StartAnimation();
 			runningAnimations.Add(popoverBackgroundAnimator);
 		}
+	}
+
+	void ShowBottomSheetNotAnimated(BottomSheetSize size, bool collapsed = false)
+	{
+		_ = View ?? throw new InvalidOperationException($"{nameof(View)} cannot be null.");
+		_ = PopoverViewController ?? throw new InvalidOperationException($"{nameof(PopoverViewController)} cannot be null.");
+		_ = PopoverViewController.View ?? throw new InvalidOperationException($"{nameof(PopoverViewController.View)} cannot be null.");
+
+		var newY = !collapsed ? View.Frame.Height - (nfloat)size.TotalHeight : View.Frame.Height;
+		if (IsIpad)
+		{
+			newY = 0;
+		}
+		var frame = PopoverViewController.View.Frame;
+		PopoverViewController.View.Frame = new CGRect(x:frame.X, y:newY, width:frame.Width, height:frame.Height);
 	}
 
 	/// <summary>
