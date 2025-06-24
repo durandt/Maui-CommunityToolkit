@@ -37,7 +37,6 @@
     <Description>Core library for community toolkits using .NET MAUI</Description>
     <PackageIcon>icon.png</PackageIcon>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
-    <Version>1.0.0-pre1</Version>
     <PackageVersion>$(Version)$(VersionSuffix)</PackageVersion>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>dotnet,maui,toolkit,kit,communitytoolkit,dotnetcommunitytoolkit</PackageTags>
