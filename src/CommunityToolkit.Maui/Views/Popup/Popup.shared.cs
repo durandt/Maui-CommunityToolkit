@@ -409,7 +409,7 @@ public partial class Popup : Element, IPopup, IWindowController, IPropertyPropag
 	async void IPopup.OnDismissedByTappingOutsideOfPopup() => await OnDismissedByTappingOutsideOfPopup(CancellationToken.None);
 
 	void IPropertyPropagationController.PropagatePropertyChanged(string propertyName) =>
-		PropertyPropagationExtensions.PropagatePropertyChanged(propertyName, this, ((IVisualTreeElement)this).GetVisualChildren());
+		PropertyPropagationExtensions.PropagatePropertyChanged(propertyName, this, ((IVisualTreeElement)this).GetVisualChildren().ToList());
 
 	IReadOnlyList<IVisualTreeElement> IVisualTreeElement.GetVisualChildren() => Content is null ? [] : [Content];
 }

@@ -555,7 +555,7 @@ public partial class BottomSheet : Element, IBottomSheet, IWindowController, IPr
 	void IBottomSheet.OnDismissedBySwipingDown() => OnDismissedBySwipingDown();
 
 	void IPropertyPropagationController.PropagatePropertyChanged(string propertyName) =>
-		PropertyPropagationExtensions.PropagatePropertyChanged(propertyName, this, ((IVisualTreeElement)this).GetVisualChildren());
+		PropertyPropagationExtensions.PropagatePropertyChanged(propertyName, this, ((IVisualTreeElement)this).GetVisualChildren().ToList());
 
 	IReadOnlyList<IVisualTreeElement> IVisualTreeElement.GetVisualChildren() =>
 		Content is null
