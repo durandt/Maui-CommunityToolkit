@@ -11,7 +11,7 @@
             <ShellContent ContentTemplate="{DataTemplate views:MultipleBottomSheetPage}" />
         </Tab>
         <Tab Title="Popup">
-            <ShellContent ContentTemplate="{DataTemplate views:MultiplePopupPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:PopupsPage}" />
         </Tab>
     </TabBar>
 </Shell>

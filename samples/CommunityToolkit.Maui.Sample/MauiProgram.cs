@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.ApplicationModel;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Media;
+using CommunityToolkit.Maui.Sample.Models;
 using CommunityToolkit.Maui.Sample.Pages;
 using CommunityToolkit.Maui.Sample.Pages.Alerts;
 using CommunityToolkit.Maui.Sample.Pages.Behaviors;
@@ -26,7 +27,6 @@ using CommunityToolkit.Maui.Sample.ViewModels.PlatformSpecific;
 using CommunityToolkit.Maui.Sample.ViewModels.Views;
 using CommunityToolkit.Maui.Sample.Views.Popups;
 using CommunityToolkit.Maui.Storage;
-using CommunityToolkit.Maui.Views;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
@@ -124,7 +124,7 @@ public static class MauiProgram
 		builder.Services.AddHttpClient<ByteArrayToImageSourceConverterViewModel>()
 						.AddStandardResilienceHandler(static options => options.Retry = new MobileHttpRetryStrategyOptions());
 
-		builder.Services.AddSingleton<AppShell>();
+		builder.Services.AddSingleton<TabAppShell>();
 		builder.Services.AddSingleton<BottomSheetSizeConstants>();
 
 		RegisterViewsAndViewModels(builder.Services);
