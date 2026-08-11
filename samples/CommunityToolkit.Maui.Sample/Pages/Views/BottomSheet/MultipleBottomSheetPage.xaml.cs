@@ -24,7 +24,7 @@ public partial class MultipleBottomSheetPage : BasePage<MultipleBottomSheetViewM
 		this.csharpBindingBottomSheetViewModel = csharpBindingBottomSheetViewModel;
 	}
 
-	async void HandleToggleSizeBottomSheetButtonClicked(object sender, EventArgs e)
+	async void HandleToggleSizeBottomSheetButtonClicked(object? sender, EventArgs e)
 	{
 		while (Navigation.ModalStack.Any())
 		{
